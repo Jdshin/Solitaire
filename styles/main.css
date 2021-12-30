@@ -15,11 +15,15 @@ body {
 .gameRow {
     display: flex;
     flex-direction: row;
+    padding: 3%;
 }
 
 .pile {
+    display: flex;
+    position: relative;
     height: 200px;
     width: 200px;
+    padding: 1%;
 }
 
 img {
