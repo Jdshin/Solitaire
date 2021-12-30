@@ -26,6 +26,12 @@ body {
     padding: 1%;
 }
 
+.rePile {
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
 img {
     max-width: 100%;
     max-height: 100%;
