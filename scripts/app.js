@@ -5,19 +5,16 @@ const $scorePiles = $('.scorePile');
 const $rePiles = $('.rePile');
 
 const $piles = $(".pile");
-const $cards = $("img");
+const $emptyCards = $("img");
 
 const ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 const suits = ["H", "S", "D", "C"];
 
 // Set empty image as undraggable
-$cards.each(function(){this.draggable = false});
+$emptyCards.each(function(){this.draggable = false});
 
 function createCardElem(rank, suit){
     const $card = $(`<img class="card" id="${rank}${suit}" src="assets/back.svg">`);
-    $card.faceup = false;
-    $card.rank = rank;
-    $card.suit = suit;
     return $card;
 }
 
@@ -32,8 +29,8 @@ function createCards(){
 }
 
 // takes in a jquery object
-function getFaceUpAssetPath($card){
-    return `assets/${$card.rank}${$card.suit}.svg`;
+function getFaceUpAssetPath(rank, suit){
+    return `assets/${rank}${suit}.svg`;
 }
 
 function shuffleDeck(deck){
@@ -46,6 +43,70 @@ function shuffleDeck(deck){
     }
 }
 
+function populateBoard(deck){
+    for (let i = 0; i < $rePiles.length; i++){
+        for (let j = 0; j <= i; j++){
+            const $drawnCard = deck.pop();
+            $drawnCard.appendTo(`#rP${i+1}`);
+        }
+    }
+}
+
+class Card {
+    constructor(rank, suit){
+        this.rank = rank;
+        this.suit = suit;
+        this._faceup = false;
+        this._faceUpPath = `assets/${rank}${suit}`;
+    }
+    isFaceUp(){
+        return this._faceup;
+    }
+    flipCard(){
+        this._faceup = true;
+        return this._faceUpPath;
+    }
+}
+
+class GameController{
+    constructor(){
+        this.drawPile = [];
+        this.discPile = [];
+        this.scorePiles = [];
+        this.rePiles = [];
+    }
+    checkOppSuit(cardToPlace, cardToReceive){
+        if ((cardToPlace.suit == "H" || cardToPlace.suit == "D") && (cardToReceive.suit == "C" || cardToReceive.suit == "S")){
+            return true;
+        } else if ((cardToPlace.suit == "S" || cardToPlace.suit == "C") && (cardToReceive.suit == "H" || cardToReceive.suit == "D")){
+            return true;
+        }
+        return false;
+    }
+    checkValidRearrangeMove(cardToPlace, cardToReceive){
+        if ((cardToPlace.rank < cardToReceive.rank) && this.checkOppSuit(cardToPlace, cardToReceive)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    checkValidScoreMove(cardToPlace, cardToReceive){
+        if ((cardToPlace.rank > cardToReceive.rank) && (cardToPlace.suit == cardToReceive.suit)){
+            return true;
+        }
+        return false;
+    }
+}
+
+
 const deck = createCards();
+shuffleDeck(deck);
+populateBoard(deck);
 
+// console.log($rePiles[1].childNodes);
 
+// const $cards = $('.card');
+// $cards.on('click', function(){
+//     console.log($(this));
+// });
+// console.log(deck);
