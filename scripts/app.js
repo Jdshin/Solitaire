@@ -10,6 +10,9 @@ const $emptyCards = $("img");
 const ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 const suits = ["H", "S", "D", "C"];
 
+// Global to keep track of game state
+let numFaceUp = 0;
+
 // Set empty image as undraggable
 $emptyCards.each(function(){this.draggable = false});
 
@@ -25,9 +28,12 @@ class Card {
         return this._faceup;
     }
     flipCard(){
-        this._faceup = true;
-        const $thisCard = $(`${this.htmlId}`);
-        $thisCard.attr('src', this._faceUpPath);
+        if (this._faceup == false){
+            this._faceup = true;
+            const $thisCard = $(`${this.htmlId}`);
+            $thisCard.attr('src', this._faceUpPath);
+            numFaceUp += 1;
+        }
     }
 }
 
