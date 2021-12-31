@@ -13,63 +13,28 @@ const suits = ["H", "S", "D", "C"];
 // Set empty image as undraggable
 $emptyCards.each(function(){this.draggable = false});
 
-function createCardElem(rank, suit){
-    const $card = $(`<img class="card" id="${rank}${suit}" src="assets/back.svg">`);
-    return $card;
-}
-
-function createCards(){
-    const deck = [];
-    for (let i = 0; i < suits.length; i++){
-        for (let j = 0; j < ranks.length; j++){
-            deck.push(createCardElem(ranks[j], suits[i]));
-        }
-    }
-    return deck;
-}
-
-// takes in a jquery object
-function getFaceUpAssetPath(rank, suit){
-    return `assets/${rank}${suit}.svg`;
-}
-
-function shuffleDeck(deck){
-    // Using Fisher-Yates Shuffling Algorithm
-    for (let i = deck.length-1; i > 0; i--){
-        const rand = Math.floor(Math.random()*i);
-        const temp = deck[i];
-        deck[i] = deck[rand];
-        deck[rand] = temp;
-    }
-}
-
-function populateBoard(deck){
-    for (let i = 0; i < $rePiles.length; i++){
-        for (let j = 0; j <= i; j++){
-            const $drawnCard = deck.pop();
-            $drawnCard.appendTo(`#rP${i+1}`);
-        }
-    }
-}
 
 class Card {
     constructor(rank, suit){
         this.rank = rank;
         this.suit = suit;
+        this.htmlId = `#${rank}${suit}`;
         this._faceup = false;
-        this._faceUpPath = `assets/${rank}${suit}`;
+        this._faceUpPath = `assets/${rank}${suit}.svg`;
     }
     isFaceUp(){
         return this._faceup;
     }
     flipCard(){
         this._faceup = true;
-        return this._faceUpPath;
+        const $thisCard = $(`${this.htmlId}`);
+        $thisCard.attr('src', this._faceUpPath);
     }
 }
 
 class GameController{
     constructor(){
+        this.deck = [];
         this.drawPile = [];
         this.discPile = [];
         this.scorePiles = [];
@@ -96,17 +61,32 @@ class GameController{
         }
         return false;
     }
+    shuffleDeck(){
+        for (let i = this.deck.length-1; i > 0; i--){
+            const rand = Math.floor(Math.random()*i);
+            const temp = this.deck[i];
+            this.deck[i] = this.deck[rand];
+            this.deck[rand] = temp;
+        }
+    }
+    createDeck(){
+        for (let i = 0; i < suits.length; i++){
+            for (let j = 0; j < ranks.length; j++){
+                this.deck.push(this.createCardHtmlElem(ranks[j], suits[i]));
+            }
+        }
+    }
+    createCardHtmlElem(rank, suit){
+        const $card = $(`<img class="card" id="${rank}${suit}" src="assets/back.svg">`);
+        return $card;
+    }
+    populateBoard(){
+        
+    }
 }
 
+const gameController = new GameController();
 
-const deck = createCards();
-shuffleDeck(deck);
-populateBoard(deck);
-
-// console.log($rePiles[1].childNodes);
-
-// const $cards = $('.card');
-// $cards.on('click', function(){
-//     console.log($(this));
-// });
-// console.log(deck);
+gameController.createDeck();
+gameController.shuffleDeck();
+console.log(gameController.deck);
