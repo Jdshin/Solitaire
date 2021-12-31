@@ -13,7 +13,6 @@ const suits = ["H", "S", "D", "C"];
 // Set empty image as undraggable
 $emptyCards.each(function(){this.draggable = false});
 
-
 class Card {
     constructor(rank, suit){
         this.rank = rank;
@@ -37,8 +36,21 @@ class GameController{
         this.deck = [];
         this.drawPile = [];
         this.discPile = [];
-        this.scorePiles = [];
-        this.rePiles = [];
+        this.scorePiles = {
+            0: [],
+            1: [],
+            2: [],
+            3: [],
+        };
+        this.rePiles = {
+            0: [],
+            1: [],
+            2: [],
+            3: [],
+            4: [],
+            5: [],
+            6: []
+        };
     }
     checkOppSuit(cardToPlace, cardToReceive){
         if ((cardToPlace.suit == "H" || cardToPlace.suit == "D") && (cardToReceive.suit == "C" || cardToReceive.suit == "S")){
@@ -72,16 +84,32 @@ class GameController{
     createDeck(){
         for (let i = 0; i < suits.length; i++){
             for (let j = 0; j < ranks.length; j++){
-                this.deck.push(this.createCardHtmlElem(ranks[j], suits[i]));
+                this.deck.push(new Card(ranks[j], suits[i]));
             }
         }
     }
-    createCardHtmlElem(rank, suit){
-        const $card = $(`<img class="card" id="${rank}${suit}" src="assets/back.svg">`);
+    createCardHtmlElem(cardObj){
+        const $card = $(`<img class="card" id="${cardObj.rank}${cardObj.suit}" src="assets/back.svg">`);
         return $card;
     }
     populateBoard(){
-        
+        let numRePileCards = 0;
+        for (let i = $rePiles.length; i > 0; i--){
+            numRePileCards += i;
+        }
+        // track rePile number
+        let currIdx = 0;
+        for (let rPileNum = 0; rPileNum <  $rePiles.length; rPileNum++){
+            for (let k = 0; k <= rPileNum; k++){
+                const currCard = this.deck[currIdx];
+                const $cardHtml = this.createCardHtmlElem(currCard);
+                $cardHtml.appendTo(`#rP${rPileNum}`);
+                currIdx += 1;
+                if (k == rPileNum){
+                    currCard.flipCard();
+                }
+            }
+        }
     }
 }
 
@@ -89,4 +117,7 @@ const gameController = new GameController();
 
 gameController.createDeck();
 gameController.shuffleDeck();
-console.log(gameController.deck);
+gameController.populateBoard();
+
+const $cards = $('.card');
+$cards.on('click', function(){console.log(this.id)});
