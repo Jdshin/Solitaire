@@ -117,10 +117,16 @@ class GameController{
             }
         }
         // populate draw pile
-        for (let drawPileNum = currIdx; drawPileNum < this.deck.length; drawPileNum++){
-            const currCard = this.deck[drawPileNum];
-            const $cardHtml = this.createCardHtmlElem(currCard);
-            $cardHtml.appendTo('#drawPile');
+        for (let drawPileNum = currIdx; drawPileNum < this.deck.length; drawPileNum ++){
+            this.drawPile.push(this.deck[drawPileNum]);
+        }
+        this.setDrawPileFace();
+    }
+    setDrawPileFace(){
+        if (this.drawPile.length == 0){
+            $('#drawPile img').attr('src', 'assets/empty.svg');
+        } else {
+            $('#drawPile img').attr('src', 'assets/back.svg');
         }
     }
 }
