@@ -103,7 +103,7 @@ class GameController{
         for (let i = $rePiles.length; i > 0; i--){
             numRePileCards += i;
         }
-        // track rePile number
+        // populate rearranging piles
         let currIdx = 0;
         for (let rPileNum = 0; rPileNum <  $rePiles.length; rPileNum++){
             for (let k = 0; k <= rPileNum; k++){
@@ -115,6 +115,12 @@ class GameController{
                     currCard.flipCard();
                 }
             }
+        }
+        // populate draw pile
+        for (let drawPileNum = currIdx; drawPileNum < this.deck.length; drawPileNum++){
+            const currCard = this.deck[drawPileNum];
+            const $cardHtml = this.createCardHtmlElem(currCard);
+            $cardHtml.appendTo('#drawPile');
         }
     }
 }
