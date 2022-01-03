@@ -35,6 +35,9 @@ class Card {
             numFaceUp += 1;
         }
     }
+    getImgSrc(){
+        return this._faceUpPath;
+    }
 }
 
 class GameController{
@@ -129,6 +132,17 @@ class GameController{
             $('#drawPile img').attr('src', 'assets/back.svg');
         }
     }
+    drawCard(){
+        if (this.drawPile.length > 0){
+            const drawnCard = this.drawPile.shift();
+            console.log(drawnCard);
+            this.discPile.push(drawnCard);
+            $(`#activePile img`).attr('src', drawnCard.getImgSrc());
+        }
+        if (this.drawPile.length == 0){
+            this.setDrawPileFace();
+        }
+    }
 }
 
 const gameController = new GameController();
@@ -139,3 +153,4 @@ gameController.populateBoard();
 
 const $cards = $('.card');
 $cards.on('click', function(){console.log(this.id)});
+$drawPile.on('click', function(){gameController.drawCard()});
