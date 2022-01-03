@@ -1,11 +1,15 @@
 // div holders and drop areas
 const $drawPile = $("#drawPile");
-const $activePile = $("#activePile");
+const $drawPileImg = $("#drawPile img");
+const $activePileImg = $("#activePile img");
 const $scorePiles = $('.scorePile');
 const $rePiles = $('.rePile');
 
 const $piles = $(".pile");
 const $emptyCards = $("img");
+
+const emptyCardImgPath = 'assets/empty.svg';
+const backCardImgPath = 'assets/back.svg';
 
 const ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 const suits = ["H", "S", "D", "C"];
@@ -98,7 +102,7 @@ class GameController{
         }
     }
     createCardHtmlElem(cardObj){
-        const $card = $(`<img class="card" id="${cardObj.rank}${cardObj.suit}" src="assets/back.svg">`);
+        const $card = $(`<img class="card" id="${cardObj.rank}${cardObj.suit}" src="${backCardImgPath}">`);
         return $card;
     }
     populateBoard(){
@@ -127,9 +131,9 @@ class GameController{
     }
     setDrawPileFace(){
         if (this.drawPile.length == 0){
-            $('#drawPile img').attr('src', 'assets/empty.svg');
+            $drawPileImg.attr('src', `${emptyCardImgPath}`);
         } else {
-            $('#drawPile img').attr('src', 'assets/back.svg');
+            $drawPileImg.attr('src', `${backCardImgPath}`);
         }
     }
     drawCard(){
@@ -137,10 +141,15 @@ class GameController{
             const drawnCard = this.drawPile.shift();
             console.log(drawnCard);
             this.discPile.push(drawnCard);
-            $(`#activePile img`).attr('src', drawnCard.getImgSrc());
-        }
-        if (this.drawPile.length == 0){
-            this.setDrawPileFace();
+            $activePileImg.attr('src', drawnCard.getImgSrc());
+            if (this.drawPile.length == 0){
+                this.setDrawPileFace();
+            }
+        } else {
+            this.drawPile = this.discPile;
+            this.discPile = [];
+            $drawPileImg.attr('src', backCardImgPath);
+            $activePileImg.attr('src', emptyCardImgPath);
         }
     }
 }
