@@ -25,6 +25,7 @@ class Card {
         this.rank = rank;
         this.suit = suit;
         this.htmlId = `#${rank}${suit}`;
+        this.id = `${rank}${suit}`;
         this._faceup = false;
         this._faceUpPath = `assets/${rank}${suit}.svg`;
     }
@@ -56,14 +57,16 @@ class GameController{
             3: [],
         };
         this.rePiles = {
-            0: [],
-            1: [],
-            2: [],
-            3: [],
-            4: [],
-            5: [],
-            6: []
+            'rP0': [],
+            'rP1': [],
+            'rP2': [],
+            'rP3': [],
+            'rP4': [],
+            'rP5': [],
+            'rP6': []
         };
+        this.cardToPlace = undefined;
+        this.cardToReceive = undefined;
     }
     checkOppSuit(cardToPlace, cardToReceive){
         if ((cardToPlace.suit == "H" || cardToPlace.suit == "D") && (cardToReceive.suit == "C" || cardToReceive.suit == "S")){
@@ -106,18 +109,17 @@ class GameController{
         return $card;
     }
     populateBoard(){
-        let numRePileCards = 0;
-        for (let i = $rePiles.length; i > 0; i--){
-            numRePileCards += i;
-        }
         // populate rearranging piles
         let currIdx = 0;
         for (let rPileNum = 0; rPileNum <  $rePiles.length; rPileNum++){
             for (let k = 0; k <= rPileNum; k++){
                 const currCard = this.deck[currIdx];
+                this.rePiles[`rP${rPileNum}`].push(currCard);
+
                 const $cardHtml = this.createCardHtmlElem(currCard);
                 $cardHtml.appendTo(`#rP${rPileNum}`);
                 currIdx += 1;
+
                 if (k == rPileNum){
                     currCard.flipCard();
                 }
@@ -128,6 +130,18 @@ class GameController{
             this.drawPile.push(this.deck[drawPileNum]);
         }
         this.setDrawPileFace();
+    }
+    setCardToPlace(parentPileId, cardId){
+        const cardToPlace = this.rePiles[parentPileId].find(obj => obj.id == cardId);
+        // TODO add check for cards on top of chosen card
+        if (cardToPlace.isFaceUp()){
+            this.cardToPlace = cardToPlace;
+            console.log(cardToPlace);
+        }
+        // console.log(clickedCardObj);
+    }
+    setCardToReceive(){
+        console.log("setting card to receive");
     }
     setDrawPileFace(){
         if (this.drawPile.length == 0){
@@ -161,5 +175,13 @@ gameController.shuffleDeck();
 gameController.populateBoard();
 
 const $cards = $('.card');
-$cards.on('click', function(){console.log(this.id)});
+$cards.on('click', function(){
+    if (gameController.cardToPlace == undefined){
+        const parentPile = $(`#${this.id}`).parent();
+        gameController.setCardToPlace(parentPile[0].id, this.id);
+    } else {
+        const parentPile = $(`#${this.id}`).parent();
+        gameController.setCardToReceive(parentPile[0].id, this.id);
+    }
+});
 $drawPile.on('click', function(){gameController.drawCard()});
