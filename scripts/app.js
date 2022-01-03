@@ -77,7 +77,7 @@ class GameController{
         return false;
     }
     checkValidRearrangeMove(cardToPlace, cardToReceive){
-        if ((cardToPlace.rank < cardToReceive.rank) && this.checkOppSuit(cardToPlace, cardToReceive)){
+        if ((cardToPlace.rank == cardToReceive.rank - 1) && this.checkOppSuit(cardToPlace, cardToReceive)){
             return true;
         } else {
             return false;
@@ -140,8 +140,20 @@ class GameController{
         }
         // console.log(clickedCardObj);
     }
-    setCardToReceive(){
-        console.log("setting card to receive");
+    setCardToReceive(parentPileId, cardId){
+        const cardToReceive = this.rePiles[parentPileId].find(obj => obj.id == cardId);
+        if (cardToReceive.isFaceUp()){
+            this.cardToReceive = cardToReceive;
+            if (this.checkValidRearrangeMove(this.cardToPlace, this.cardToReceive)){
+                console.log("Valid placement");
+                console.log(`Card to place: ${this.cardToPlace.id}`);
+                console.log(`Card to receive: ${this.cardToReceive.id}`);
+            } else {
+                console.log("Invalid placement, resetting");
+            }
+            this.cardToPlace = undefined;
+            this.cardToReceive = undefined;
+        }
     }
     setDrawPileFace(){
         if (this.drawPile.length == 0){
@@ -175,6 +187,7 @@ gameController.shuffleDeck();
 gameController.populateBoard();
 
 const $cards = $('.card');
+
 $cards.on('click', function(){
     if (gameController.cardToPlace == undefined){
         const parentPile = $(`#${this.id}`).parent();
@@ -184,4 +197,5 @@ $cards.on('click', function(){
         gameController.setCardToReceive(parentPile[0].id, this.id);
     }
 });
+
 $drawPile.on('click', function(){gameController.drawCard()});
