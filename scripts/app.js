@@ -2,7 +2,7 @@
 const $drawPile = $("#drawPile");
 const $drawPileImg = $("#drawPile img");
 const $activePileImg = $("#activePile img");
-const $scorePiles = $('.scorePile');
+const $scorePileImgs = $('.scorePile img');
 const $rePiles = $('.rePile');
 
 const $piles = $(".pile");
@@ -26,6 +26,7 @@ class Card {
         this.suit = suit;
         this.htmlId = `#${rank}${suit}`;
         this.id = `${rank}${suit}`;
+        this.pileId = 'drawPile';
         this._faceup = false;
         this._faceUpPath = `assets/${rank}${suit}.svg`;
     }
@@ -51,10 +52,10 @@ class GameController{
         this.drawPile = [];
         this.activePile = [];
         this.scorePiles = {
-            0: [],
-            1: [],
-            2: [],
-            3: [],
+            'sP0': [],
+            'sP1': [],
+            'sP2': [],
+            'sP3': [],
         };
         this.rePiles = {
             'rP0': [],
@@ -83,12 +84,21 @@ class GameController{
             return false;
         }
     }
-    checkValidScoreMove(cardToPlace, cardToReceive){
-        if ((cardToPlace.rank > cardToReceive.rank) && (cardToPlace.suit == cardToReceive.suit)){
-            return true;
+    checkValidScoreMove(parentPileId, receiverCardId){
+        console.log(parentPileId);
+        console.log(`receiver ID: ${receiverCardId}`);
+        if (receiverCardId == "" && this.cardToPlace.rank == 1){
+            console.log("Valid placement");
+            this.cardToPlace = undefined;
+        } else if (receiverCardId != ""){
+            const cardToReceive = this.scorePiles[parentPileId].find(obj => obj.id == receiverCardId);
+            this.cardToPlace = undefined;
+            console.log(cardToReceive);
+        } else {
+            console.log(`Invalid placement`);
         }
-        return false;
-    }
+    };
+    //Uses Fisher-Yates algo
     shuffleDeck(){
         for (let i = this.deck.length-1; i > 0; i--){
             const rand = Math.floor(Math.random()*i);
@@ -114,6 +124,7 @@ class GameController{
         for (let rPileNum = 0; rPileNum <  $rePiles.length; rPileNum++){
             for (let k = 0; k <= rPileNum; k++){
                 const currCard = this.deck[currIdx];
+                currCard.pileId = `rP${rPileNum}`;
                 this.rePiles[`rP${rPileNum}`].push(currCard);
 
                 const $cardHtml = this.createCardHtmlElem(currCard);
@@ -131,7 +142,7 @@ class GameController{
         }
         this.setDrawPileFace();
     }
-    setCardToPlace(parentPileClass, parentPileId, cardId){
+    setCardToPlace(parentPileId, cardId){
         let cardToPlace = "";
 
         if (parentPileId == 'activePile'){
@@ -142,12 +153,12 @@ class GameController{
         // TODO add check for cards on top of chosen card
         if (cardToPlace.isFaceUp()){
             this.cardToPlace = cardToPlace;
-            console.log(cardToPlace);
         }
         // console.log(clickedCardObj);
     }
     setCardToReceive(parentPileId, cardId){
         const cardToReceive = this.rePiles[parentPileId].find(obj => obj.id == cardId);
+
         if (cardToReceive.isFaceUp()){
             this.cardToReceive = cardToReceive;
             if (this.checkValidRearrangeMove(this.cardToPlace, this.cardToReceive)){
@@ -173,7 +184,6 @@ class GameController{
             this.activePile.push(drawnCard);
             $activePileImg.attr('src', drawnCard.getImgSrc());
             $activePileImg.attr('id', drawnCard.id);
-            // add onclick listener here??
             $activePileImg.attr('class', 'card');
             if (this.drawPile.length == 0){
                 this.setDrawPileFace();
@@ -199,7 +209,7 @@ const $activePile = $('#activePile');
 $cards.on('click', function(){
     if (gameController.cardToPlace == undefined){
         const parentPile = $(`#${this.id}`).parent();
-        gameController.setCardToPlace(parentPile[0].className, parentPile[0].id, this.id);
+        gameController.setCardToPlace(parentPile[0].id, this.id);
         
     } else {
         const parentPile = $(`#${this.id}`).parent();
@@ -210,12 +220,19 @@ $cards.on('click', function(){
 $activePileImg.on('click', function(){
     if (gameController.cardToPlace == undefined){
         const parentPile = $(`#${this.id}`).parent();
-        gameController.setCardToPlace(parentPile[0].className, parentPile[0].id, this.id);
+        gameController.setCardToPlace(parentPile[0].id, this.id);
     } else {
         const parentPile = $(`#${this.id}`).parent();
         gameController.setCardToReceive(parentPile[0].id, this.id);
     }
 });
-$scorePiles.on('click', function(){console.log(this)});
+
+$scorePileImgs.on('click', function(){
+    console.log(gameController.cardToPlace);
+    if (gameController.cardToPlace){
+        const parentPile = $(this).parent();
+        gameController.checkValidScoreMove(parentPile[0].id, this.id);
+    }
+});
 
 $drawPile.on('click', function(){gameController.drawCard()});
