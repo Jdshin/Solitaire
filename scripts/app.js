@@ -49,7 +49,7 @@ class GameController{
     constructor(){
         this.deck = [];
         this.drawPile = [];
-        this.discPile = [];
+        this.activePile = [];
         this.scorePiles = {
             0: [],
             1: [],
@@ -131,8 +131,14 @@ class GameController{
         }
         this.setDrawPileFace();
     }
-    setCardToPlace(parentPileId, cardId){
-        const cardToPlace = this.rePiles[parentPileId].find(obj => obj.id == cardId);
+    setCardToPlace(parentPileClass, parentPileId, cardId){
+        let cardToPlace = "";
+
+        if (parentPileId == 'activePile'){
+            cardToPlace = this.activePile.find(obj => obj.id == cardId);
+        } else {
+            cardToPlace = this.rePiles[parentPileId].find(obj => obj.id == cardId);
+        }
         // TODO add check for cards on top of chosen card
         if (cardToPlace.isFaceUp()){
             this.cardToPlace = cardToPlace;
@@ -146,8 +152,6 @@ class GameController{
             this.cardToReceive = cardToReceive;
             if (this.checkValidRearrangeMove(this.cardToPlace, this.cardToReceive)){
                 console.log("Valid placement");
-                console.log(`Card to place: ${this.cardToPlace.id}`);
-                console.log(`Card to receive: ${this.cardToReceive.id}`);
             } else {
                 console.log("Invalid placement, resetting");
             }
@@ -165,15 +169,18 @@ class GameController{
     drawCard(){
         if (this.drawPile.length > 0){
             const drawnCard = this.drawPile.shift();
-            console.log(drawnCard);
-            this.discPile.push(drawnCard);
+            drawnCard.flipCard();
+            this.activePile.push(drawnCard);
             $activePileImg.attr('src', drawnCard.getImgSrc());
+            $activePileImg.attr('id', drawnCard.id);
+            // add onclick listener here??
+            $activePileImg.attr('class', 'card');
             if (this.drawPile.length == 0){
                 this.setDrawPileFace();
             }
         } else {
-            this.drawPile = this.discPile;
-            this.discPile = [];
+            this.drawPile = this.activePile;
+            this.activePile = [];
             $drawPileImg.attr('src', backCardImgPath);
             $activePileImg.attr('src', emptyCardImgPath);
         }
@@ -187,15 +194,28 @@ gameController.shuffleDeck();
 gameController.populateBoard();
 
 const $cards = $('.card');
+const $activePile = $('#activePile');
 
 $cards.on('click', function(){
     if (gameController.cardToPlace == undefined){
         const parentPile = $(`#${this.id}`).parent();
-        gameController.setCardToPlace(parentPile[0].id, this.id);
+        gameController.setCardToPlace(parentPile[0].className, parentPile[0].id, this.id);
+        
     } else {
         const parentPile = $(`#${this.id}`).parent();
         gameController.setCardToReceive(parentPile[0].id, this.id);
     }
 });
+
+$activePileImg.on('click', function(){
+    if (gameController.cardToPlace == undefined){
+        const parentPile = $(`#${this.id}`).parent();
+        gameController.setCardToPlace(parentPile[0].className, parentPile[0].id, this.id);
+    } else {
+        const parentPile = $(`#${this.id}`).parent();
+        gameController.setCardToReceive(parentPile[0].id, this.id);
+    }
+});
+$scorePiles.on('click', function(){console.log(this)});
 
 $drawPile.on('click', function(){gameController.drawCard()});
