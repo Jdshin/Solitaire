@@ -176,6 +176,7 @@ class GameController{
             return true;
         } else {
             console.log("invalid rearrange move");
+            this.cardToPlace = undefined;
             return false;
         }
     }
@@ -186,18 +187,19 @@ class GameController{
             return true;
         } else {
             console.log("invalid scoring move");
+            this.cardToPlace = undefined;
             return false;
         }
     }
     moveCard(newParentPileClass, newParentPileId){
         console.log("Valid move");
 
+        // Remove card obj from old pile
         const fromParentPileClass = this.cardToPlace.parentPileClass;
         const fromParentPileId = this.cardToPlace.pileId;
-        
-        // Remove card obj from old pile, set new pile properties
         this[fromParentPileClass][fromParentPileId].pop();
 
+        // Remove HTML element of old card
         switch(this.cardToPlace.parentPileClass){
             case 'rePile':
                 $(this.cardToPlace.htmlId).remove();
@@ -214,13 +216,24 @@ class GameController{
                 break;
         }
 
+        // Update new pile properties
         this.cardToPlace.parentPileClass = newParentPileClass;
         this.cardToPlace.parentPileId = newParentPileId;
         
         // Move card obj to new pile
         this[newParentPileClass][newParentPileId].push(this.cardToPlace);
-        this.createCardHtmlElem(this.cardToPlace).appendTo($(`#${this.cardToPlace.parentPileId}`));
 
+        switch(newParentPileClass){
+            case 'rePile':
+                this.createCardHtmlElem(this.cardToPlace).appendTo($(`#${this.cardToPlace.parentPileId}`));
+                break;
+            case 'scorePile':
+                $(`#${newParentPileId} img`).attr('src', this.cardToPlace.getImgSrc());
+                break;
+            default:
+                console.log("Invalid image update");
+                break;
+        }
         this.cardToPlace = undefined;
     }
 }
@@ -267,6 +280,7 @@ function handleClick(){
                     gameController.checkValidScoreMove(gameController.cardToPlace, cardToReceive);
                     break;
                 default:
+                    this.cardToPlace = undefined;
                     break;
             }
             console.log(cardToReceive);
