@@ -171,7 +171,7 @@ class GameController{
     }
     checkValidRearrangeMove(cardToPlace, cardToReceive){
         if ((cardToPlace.rank == cardToReceive.rank - 1) && this.checkOppSuit(cardToPlace, cardToReceive)){
-            console.log("valid rearrange move");
+            console.log(`valid rearrange move, card to receive parent class: ${cardToReceive.parentPileClass} ${cardToReceive.pileId}`);
             this.moveCard(cardToReceive.parentPileClass, cardToReceive.pileId);
             return true;
         } else {
@@ -195,27 +195,34 @@ class GameController{
     }
     moveCard(newParentPileClass, newParentPileId){
         console.log("starting card move");
+
         // Remove card obj from old pile
         const fromParentPileClass = this.cardToPlace.parentPileClass;
         const fromParentPileId = this.cardToPlace.pileId;
         const poppedCard = this[fromParentPileClass][fromParentPileId].pop();
         console.log(`${poppedCard.id} popped from ${fromParentPileClass} ${fromParentPileId}`)
 
-        // Remove HTML element of old card
+        // REMOVE HTML ELEMENT OF OLD CARD
         switch(this.cardToPlace.parentPileClass){
             case 'rePile':
                 $(this.cardToPlace.htmlId).remove();
                 const fromRePileLen = this[fromParentPileClass][fromParentPileId].length;
+
+                // FLIP CARD IF TOPMOST REPILE CARD IS FACEDOWN
                 if (fromRePileLen > 0){
                     this[fromParentPileClass][fromParentPileId][fromRePileLen-1].flipCard();
                 } else {
                     $(`#${fromParentPileId} img`).attr('src', emptyCardImgPath);
                 }
+
+            // 
             case 'activePile':
                 const activePileLength = this.activePile.aP0.length;
-                console.log(this.activePile.aP0);
+                console.log(`SIZE OF OLD REPILE: ${this.activePile.aP0.length}`);
+
                 if (activePileLength > 0){
                     $activePileImg.attr('src', this.activePile.aP0[activePileLength-1].getImgSrc());
+                    $activePileImg.attr('id', this.activePile.aP0[activePileLength-1].id);
                 } else {
                     $activePileImg.attr('src', emptyCardImgPath);
                 }
@@ -224,18 +231,22 @@ class GameController{
                 break;
         }
 
-        // Update new pile properties
-        this.cardToPlace.parentPileClass = newParentPileClass;
-        this.cardToPlace.parentPileId = newParentPileId;
+        // UPDATE NEW PILE PROPERTIES
+        poppedCard.parentPileClass = `${newParentPileClass}`;
+        poppedCard.pileId = newParentPileId;
         
         // Move card obj to new pile
-        this[newParentPileClass][newParentPileId].push(this.cardToPlace);
-        console.log(`Updated receiving pile ${this[newParentPileClass][newParentPileId][0]}`);
+        console.log(this[newParentPileClass]);
+        this[newParentPileClass][newParentPileId].push(poppedCard);
+        console.log(`Moved ${this.cardToPlace.id} to ${poppedCard.parentPileClass} ${poppedCard.pileId}`);
 
         // Update HTML at new card location
         switch(newParentPileClass){
             case 'rePile':
-                this.createCardHtmlElem(this.cardToPlace).appendTo($(`#${this.cardToPlace.parentPileId}`));
+                const newCardHtmlElem = this.createCardHtmlElem(this.cardToPlace);
+                newCardHtmlElem.appendTo($(`#${this.cardToPlace.pileId}`));
+                console.log(newCardHtmlElem.id);
+                $(`${poppedCard.htmlId}`).on('click', handleClick);
                 break;
             case 'scorePile':
                 $(`#${newParentPileId} img`).attr('src', this.cardToPlace.getImgSrc());
@@ -244,29 +255,37 @@ class GameController{
                 console.log("Invalid image update");
                 break;
         }
+
         this.cardToPlace = undefined;
         console.log(`After move, card to place is ${this.cardToPlace}`);
     }
 }
 
 function handleClick(){
-    console.log(this.id);
+    console.log(`Card ID: ${this.id}`);
 
     const clickedCardElem = $(this);
     const parentElem = clickedCardElem.parent();
+    
     const parentPileClass = parentElem[0].className.split(" ")[1];
     const parentPileId = parentElem[0].id;
+    console.log(`Parent Pile ID: ${parentPileId}`);
     const clickedPile = gameController[parentPileClass][parentPileId];
 
+    // SET THE CARD TO PLACE
     if (gameController.cardToPlace == undefined){
         if (this.id != ""){
             const cardToPlace = clickedPile.find(obj => obj.id == this.id);
             if (cardToPlace.isFaceUp()){
                 gameController.cardToPlace = cardToPlace;
             }
-            console.log(`Click, new card to place is ${this.id}`);
+            console.log(`NEW CARD TO PLACE: ${this.id}`);
         }
-    } else {
+    } 
+    
+    // SET THE CARD TO RECEIVE
+    else {
+        // IF NEW PILE IS EMPTY
         if (this.id == ""){
             switch (parentPileClass){
                 case 'rePile': // Only valid move is to place king on empty rearrange pile
@@ -282,10 +301,15 @@ function handleClick(){
                     }
                     break;
                 default: // no other valid moves
+                    this.cardToPlace = undefined;
                     break;
             }
-        } else {
+        } 
+        
+        // IF NEW PILE HAS CARDS
+        else if (this.id != gameController.cardToPlace.id) {
             const cardToReceive = clickedPile.find(obj => obj.id == this.id);
+            console.log(`CARD TO RECEIVE: ${cardToReceive.id} Pile ${cardToReceive.pileId}`);
             switch (parentPileClass){
                 case 'rePile': 
                     gameController.checkValidRearrangeMove(gameController.cardToPlace, cardToReceive); 
