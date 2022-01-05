@@ -15,7 +15,21 @@ body {
 .gameRow {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     padding: 3%;
+    max-width:max-content;
+}
+
+.drawActiveContainer {
+    display: flex;
+    flex-direction: row;
+    padding-right: 10em;
+}
+
+.scorePileContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
 }
 
 .pile {
@@ -29,6 +43,10 @@ body {
     display: flex;
     flex-direction: column;
     height: fit-content;
+}
+
+.drawPile {
+    padding-right: 3em;
 }
 
 img {
