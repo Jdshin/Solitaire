@@ -200,10 +200,10 @@ class GameController{
         const fromParentPileClass = this.cardToPlace.parentPileClass;
         const fromParentPileId = this.cardToPlace.pileId;
         const poppedCard = this[fromParentPileClass][fromParentPileId].pop();
-        console.log(`${poppedCard.id} popped from ${fromParentPileClass} ${fromParentPileId}`)
+        console.log(`${poppedCard.id} popped from ${fromParentPileClass} ${fromParentPileId} to ${newParentPileClass} ${newParentPileId}`)
 
         // REMOVE HTML ELEMENT OF OLD CARD
-        switch(this.cardToPlace.parentPileClass){
+        switch(fromParentPileClass){
             case 'rePile':
                 $(this.cardToPlace.htmlId).remove();
                 const fromRePileLen = this[fromParentPileClass][fromParentPileId].length;
@@ -213,6 +213,7 @@ class GameController{
                     this[fromParentPileClass][fromParentPileId][fromRePileLen-1].flipCard();
                 } else {
                     $(`#${fromParentPileId} img`).attr('src', emptyCardImgPath);
+                    $(`#${fromParentPileId} img`).attr('id', "");
                 }
 
             // 
@@ -277,8 +278,8 @@ function handleClick(){
             const cardToPlace = clickedPile.find(obj => obj.id == this.id);
             if (cardToPlace.isFaceUp()){
                 gameController.cardToPlace = cardToPlace;
+                console.log(`NEW CARD TO PLACE #1: ${this.id}`);
             }
-            console.log(`NEW CARD TO PLACE #1: ${this.id}`);
         }
     } 
     
@@ -309,17 +310,20 @@ function handleClick(){
         // IF NEW PILE HAS CARDS
         else if (this.id != gameController.cardToPlace.id && parentPileClass != 'activePile') {
             const cardToReceive = clickedPile.find(obj => obj.id == this.id);
-            console.log(`CARD TO RECEIVE: ${cardToReceive.id} Pile ${cardToReceive.pileId}`);
-            switch (parentPileClass){
-                case 'rePile': 
-                    gameController.checkValidRearrangeMove(gameController.cardToPlace, cardToReceive); 
-                    break;
-                case 'scorePile':
-                    gameController.checkValidScoreMove(gameController.cardToPlace, cardToReceive);
-                    break;
-                default:
-                    this.cardToPlace = undefined;
-                    break;
+
+            if (cardToReceive.isFaceUp()){
+                console.log(`CARD TO RECEIVE: ${cardToReceive.id} Pile ${cardToReceive.pileId}`);
+                switch (parentPileClass){
+                    case 'rePile': 
+                        gameController.checkValidRearrangeMove(gameController.cardToPlace, cardToReceive); 
+                        break;
+                    case 'scorePile':
+                        gameController.checkValidScoreMove(gameController.cardToPlace, cardToReceive);
+                        break;
+                    default:
+                        this.cardToPlace = undefined;
+                        break;
+                }
             }
         }
     }
