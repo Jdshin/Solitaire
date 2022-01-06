@@ -199,7 +199,7 @@ class GameController{
         const fromParentPileClass = this.cardToPlace.parentPileClass;
         const fromParentPileId = this.cardToPlace.pileId;
         const poppedCard = this[fromParentPileClass][fromParentPileId].pop();
-        console.log(`${poppedCard.id} popped from ${fromParentPileClass} ${fromParentPileId} to ${newParentPileClass} ${newParentPileId}`)
+        // console.log(`${poppedCard.id} popped from ${fromParentPileClass} ${fromParentPileId} to ${newParentPileClass} ${newParentPileId}`)
 
         // REMOVE HTML ELEMENT OF OLD CARD
         switch(fromParentPileClass){
@@ -215,7 +215,6 @@ class GameController{
                     $(`#${fromParentPileId} img`).attr('id', "");
                 }
 
-            // 
             case 'activePile':
                 const activePileLength = this.activePile.aP0.length;
                 // console.log(`SIZE OF OLD REPILE: ${this.activePile.aP0.length}`);
@@ -236,9 +235,7 @@ class GameController{
         poppedCard.pileId = newParentPileId;
         
         // Move card obj to new pile
-        // console.log(this[newParentPileClass]);
         this[newParentPileClass][newParentPileId].push(poppedCard);
-        // console.log(`Moved ${this.cardToPlace.id} to ${poppedCard.parentPileClass} ${poppedCard.pileId}`);
 
         // Update HTML at new card location
         switch(newParentPileClass){
@@ -257,7 +254,6 @@ class GameController{
                 console.log("Invalid image update");
                 break;
         }
-
         this.cardToPlace = undefined;
         console.log(`CARD TO PLACE RESET`);
     }
@@ -319,7 +315,10 @@ function handleClick(){
                         gameController.checkValidRearrangeMove(gameController.cardToPlace, cardToReceive); 
                         break;
                     case 'scorePile':
-                        gameController.checkValidScoreMove(gameController.cardToPlace, cardToReceive);
+                        // IF STATEMENT PREVENTS STACK MOVE ONTO A SCORE PILE
+                        if (gameController[parentPileClass][parentPileId].length == 1){
+                            gameController.checkValidScoreMove(gameController.cardToPlace, cardToReceive);
+                        }
                         break;
                     default:
                         this.cardToPlace = undefined;
