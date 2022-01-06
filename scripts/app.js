@@ -198,62 +198,70 @@ class GameController{
         // Remove card obj from old pile
         const fromParentPileClass = this.cardToPlace.parentPileClass;
         const fromParentPileId = this.cardToPlace.pileId;
-        const poppedCard = this[fromParentPileClass][fromParentPileId].pop();
+        const fromParentPileLen = this[fromParentPileClass][fromParentPileId].length;
+
+        const poppedCards = this[fromParentPileClass][fromParentPileId].splice(this.cardToPlace.index);
+        // const poppedCard = this[fromParentPileClass][fromParentPileId].pop();
+
+        console.log(poppedCards);
         // console.log(`${poppedCard.id} popped from ${fromParentPileClass} ${fromParentPileId} to ${newParentPileClass} ${newParentPileId}`)
+        poppedCards.forEach(card => {
+            this.cardToPlace = card;
+            // REMOVE HTML ELEMENT OF OLD CARD
+            switch(fromParentPileClass){
+                case 'rePile':
+                    $(this.cardToPlace.htmlId).remove();
+                    const fromRePileLen = this[fromParentPileClass][fromParentPileId].length;
 
-        // REMOVE HTML ELEMENT OF OLD CARD
-        switch(fromParentPileClass){
-            case 'rePile':
-                $(this.cardToPlace.htmlId).remove();
-                const fromRePileLen = this[fromParentPileClass][fromParentPileId].length;
+                    // FLIP CARD IF TOPMOST REPILE CARD IS FACEDOWN
+                    if (fromRePileLen > 0){
+                        this[fromParentPileClass][fromParentPileId][fromRePileLen-1].flipCard();
+                    } else {
+                        $(`#${fromParentPileId} img`).attr('src', emptyCardImgPath);
+                        $(`#${fromParentPileId} img`).attr('id', "");
+                    }
 
-                // FLIP CARD IF TOPMOST REPILE CARD IS FACEDOWN
-                if (fromRePileLen > 0){
-                    this[fromParentPileClass][fromParentPileId][fromRePileLen-1].flipCard();
-                } else {
-                    $(`#${fromParentPileId} img`).attr('src', emptyCardImgPath);
-                    $(`#${fromParentPileId} img`).attr('id', "");
-                }
+                case 'activePile':
+                    const activePileLength = this.activePile.aP0.length;
+                    // console.log(`SIZE OF OLD REPILE: ${this.activePile.aP0.length}`);
 
-            case 'activePile':
-                const activePileLength = this.activePile.aP0.length;
-                // console.log(`SIZE OF OLD REPILE: ${this.activePile.aP0.length}`);
+                    if (activePileLength > 0){
+                        $activePileImg.attr('src', this.activePile.aP0[activePileLength-1].getImgSrc());
+                        $activePileImg.attr('id', this.activePile.aP0[activePileLength-1].id);
+                    } else {
+                        $activePileImg.attr('src', emptyCardImgPath);
+                    }
+                    break;
+                default:
+                    break;
+            }
 
-                if (activePileLength > 0){
-                    $activePileImg.attr('src', this.activePile.aP0[activePileLength-1].getImgSrc());
-                    $activePileImg.attr('id', this.activePile.aP0[activePileLength-1].id);
-                } else {
-                    $activePileImg.attr('src', emptyCardImgPath);
-                }
-                break;
-            default:
-                break;
-        }
+            // UPDATE NEW PILE PROPERTIES
+            this.cardToPlace.parentPileClass = `${newParentPileClass}`;
+            this.cardToPlace.pileId = newParentPileId;
 
-        // UPDATE NEW PILE PROPERTIES
-        poppedCard.parentPileClass = `${newParentPileClass}`;
-        poppedCard.pileId = newParentPileId;
-        
-        // Move card obj to new pile
-        this[newParentPileClass][newParentPileId].push(poppedCard);
+            // Move card obj to new pile
+            this[newParentPileClass][newParentPileId].push(this.cardToPlace);
 
-        // Update HTML at new card location
-        switch(newParentPileClass){
-            case 'rePile':
-                const newCardHtmlElem = this.createCardHtmlElem(this.cardToPlace);
-                newCardHtmlElem.appendTo($(`#${this.cardToPlace.pileId}`));
-                console.log(newCardHtmlElem.id);
-                $(`${poppedCard.htmlId}`).on('click', handleClick);
-                break;
-            case 'scorePile':
-                const $clickedScorePileImg = $(`#${newParentPileId} img`);
-                $clickedScorePileImg.attr('src', this.cardToPlace.getImgSrc());
-                $clickedScorePileImg.attr('id', this.cardToPlace.id);
-                break;
-            default:
-                console.log("Invalid image update");
-                break;
-        }
+            // Update HTML at new card location
+            switch(newParentPileClass){
+                case 'rePile':
+                    const newCardHtmlElem = this.createCardHtmlElem(this.cardToPlace);
+                    newCardHtmlElem.appendTo($(`#${this.cardToPlace.pileId}`));
+                    // console.log(newCardHtmlElem.id);
+                    $(`${this.cardToPlace.htmlId}`).on('click', handleClick);
+                    break;
+                case 'scorePile':
+                    const $clickedScorePileImg = $(`#${newParentPileId} img`);
+                    $clickedScorePileImg.attr('src', this.cardToPlace.getImgSrc());
+                    $clickedScorePileImg.attr('id', this.cardToPlace.id);
+                    break;
+                default:
+                    console.log("Invalid image update");
+                    break;
+            }
+        });
+            
         this.cardToPlace = undefined;
         console.log(`CARD TO PLACE RESET`);
     }
