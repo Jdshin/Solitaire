@@ -185,7 +185,6 @@ class GameController{
         console.log(`Score Move: PlaceCardRank: ${cardToPlace.rank} ReceiveCardRank: ${cardToReceive.rank}`);
         console.log(`Score Move: PlaceCardSuit: ${cardToPlace.suit} ReceiveCardSuit: ${cardToReceive.suit}`);
         if ((cardToPlace.rank == cardToReceive.rank + 1) && (cardToPlace.suit == cardToReceive.suit)){
-            console.log("valid scoring move");
             this.moveCard(cardToReceive.parentPileClass, cardToReceive.pileId);
             return true;
         } else {
@@ -200,13 +199,8 @@ class GameController{
         // Remove card obj from old pile
         const fromParentPileClass = this.cardToPlace.parentPileClass;
         const fromParentPileId = this.cardToPlace.pileId;
-        const fromParentPileLen = this[fromParentPileClass][fromParentPileId].length;
-
         const poppedCards = this[fromParentPileClass][fromParentPileId].splice(this.cardToPlace.index);
-        // const poppedCard = this[fromParentPileClass][fromParentPileId].pop();
 
-        // console.log(poppedCards);
-        // console.log(`${poppedCard.id} popped from ${fromParentPileClass} ${fromParentPileId} to ${newParentPileClass} ${newParentPileId}`)
         poppedCards.forEach(card => {
             this.cardToPlace = card;
             // REMOVE HTML ELEMENT OF OLD CARD
@@ -250,7 +244,6 @@ class GameController{
                 case 'rePile':
                     const newCardHtmlElem = this.createCardHtmlElem(this.cardToPlace);
                     newCardHtmlElem.appendTo($(`#${this.cardToPlace.pileId}`));
-                    // console.log(newCardHtmlElem.id);
                     $(`${this.cardToPlace.htmlId}`).on('click', handleClick);
                     break;
                 case 'scorePile':
@@ -282,7 +275,7 @@ function handleClick(){
         if (this.id != "" && parentPileClass != 'scorePile'){
             const cardToPlace = clickedPile.find(obj => obj.id == this.id);
             cardToPlace.index = clickedPile.indexOf(cardToPlace);
-            // console.log(`Card to place index: ${cardToPlace.index}`);
+
             if (cardToPlace.isFaceUp()){
                 gameController.cardToPlace = cardToPlace;
                 console.log(`CARD TO PLACE: ${this.id}`);
@@ -297,13 +290,11 @@ function handleClick(){
             switch (parentPileClass){
                 case 'rePile': // Only valid move is to place king on empty rearrange pile
                     if (gameController.cardToPlace.rank == 13){
-                        // console.log("valid placement of king on empty rearrange");
                         gameController.moveCard(parentPileClass, parentPileId);     
                     } 
                     break;
                 case 'scorePile': // only valid move is to place ace on empty score pile
                     if (gameController.cardToPlace.rank == 1){
-                        // console.log("valid placement of ace on score");
                         gameController.moveCard(parentPileClass, parentPileId);
                     }
                     break;
@@ -311,7 +302,6 @@ function handleClick(){
                     this.cardToPlace = undefined;
                     break;
             }
-            this.cardToPlace = undefined;
         } 
         
         // IF NEW PILE HAS CARDS
@@ -319,14 +309,11 @@ function handleClick(){
             const cardToReceive = clickedPile.find(obj => obj.id == this.id);
 
             if (cardToReceive.isFaceUp()){
-                console.log(`CARD TO RECEIVE: ${cardToReceive.id} Pile ${cardToReceive.pileId} Class ${cardToReceive.parentPileClass}`);
                 switch (parentPileClass){
                     case 'rePile': 
                         gameController.checkValidRearrangeMove(gameController.cardToPlace, cardToReceive); 
                         break;
                     case 'scorePile':
-                        // IF STATEMENT PREVENTS STACK MOVE ONTO A SCORE PILE
-                        console.log("SCORE MOVE ENTER");
                         const cardToPlaceParentPileLen = gameController[gameController.cardToPlace.parentPileClass][gameController.cardToPlace.pileId].length;
                         if (gameController.cardToPlace.index == cardToPlaceParentPileLen - 1){
                             gameController.checkValidScoreMove(gameController.cardToPlace, cardToReceive);
@@ -348,9 +335,7 @@ gameController.shuffleDeck();
 gameController.populateBoard();
 
 const $cards = $('.pile img');
-// console.log(numFaceUp);
 
 $cards.on('click', handleClick);
 $activePileImg.on('click', handleClick);
-
 $drawPile.on('click', function(){gameController.drawCard()});
