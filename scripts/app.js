@@ -177,19 +177,21 @@ class GameController{
         } else {
             console.log("invalid rearrange move");
             this.cardToPlace = undefined;
-            console.log(`CARD TO PLACE RESET`);
+            console.log(`RESET`);
             return false;
         }
     }
     checkValidScoreMove(cardToPlace, cardToReceive){
-        if ((cardToPlace.rank = cardToReceive.rank + 1) && (cardToPlace.suit == cardToReceive.suit)){
+        console.log(`Score Move: PlaceCardRank: ${cardToPlace.rank} ReceiveCardRank: ${cardToReceive.rank}`);
+        console.log(`Score Move: PlaceCardSuit: ${cardToPlace.suit} ReceiveCardSuit: ${cardToReceive.suit}`);
+        if ((cardToPlace.rank == cardToReceive.rank + 1) && (cardToPlace.suit == cardToReceive.suit)){
             console.log("valid scoring move");
             this.moveCard(cardToReceive.parentPileClass, cardToReceive.pileId);
             return true;
         } else {
             console.log("invalid scoring move");
             this.cardToPlace = undefined;
-            console.log(`CARD TO PLACE RESET`);
+            console.log(`RESET`);
             return false;
         }
     }
@@ -203,7 +205,7 @@ class GameController{
         const poppedCards = this[fromParentPileClass][fromParentPileId].splice(this.cardToPlace.index);
         // const poppedCard = this[fromParentPileClass][fromParentPileId].pop();
 
-        console.log(poppedCards);
+        // console.log(poppedCards);
         // console.log(`${poppedCard.id} popped from ${fromParentPileClass} ${fromParentPileId} to ${newParentPileClass} ${newParentPileId}`)
         poppedCards.forEach(card => {
             this.cardToPlace = card;
@@ -263,7 +265,7 @@ class GameController{
         });
             
         this.cardToPlace = undefined;
-        console.log(`CARD TO PLACE RESET`);
+        console.log(`RESET`);
     }
 }
 
@@ -280,10 +282,10 @@ function handleClick(){
         if (this.id != "" && parentPileClass != 'scorePile'){
             const cardToPlace = clickedPile.find(obj => obj.id == this.id);
             cardToPlace.index = clickedPile.indexOf(cardToPlace);
-            console.log(`Card to place index: ${cardToPlace.index}`);
+            // console.log(`Card to place index: ${cardToPlace.index}`);
             if (cardToPlace.isFaceUp()){
                 gameController.cardToPlace = cardToPlace;
-                console.log(`NEW CARD TO PLACE: ${this.id}`);
+                console.log(`CARD TO PLACE: ${this.id}`);
             }
         }
     } 
@@ -317,14 +319,16 @@ function handleClick(){
             const cardToReceive = clickedPile.find(obj => obj.id == this.id);
 
             if (cardToReceive.isFaceUp()){
-                console.log(`CARD TO RECEIVE: ${cardToReceive.id} Pile ${cardToReceive.pileId}`);
+                console.log(`CARD TO RECEIVE: ${cardToReceive.id} Pile ${cardToReceive.pileId} Class ${cardToReceive.parentPileClass}`);
                 switch (parentPileClass){
                     case 'rePile': 
                         gameController.checkValidRearrangeMove(gameController.cardToPlace, cardToReceive); 
                         break;
                     case 'scorePile':
                         // IF STATEMENT PREVENTS STACK MOVE ONTO A SCORE PILE
-                        if (gameController[parentPileClass][parentPileId].length == 1){
+                        console.log("SCORE MOVE ENTER");
+                        const cardToPlaceParentPileLen = gameController[gameController.cardToPlace.parentPileClass][gameController.cardToPlace.pileId].length;
+                        if (gameController.cardToPlace.index == cardToPlaceParentPileLen - 1){
                             gameController.checkValidScoreMove(gameController.cardToPlace, cardToReceive);
                         }
                         break;
