@@ -138,7 +138,7 @@ class GameController{
     }
     drawCard(){
         if (this.drawPile['dP0'].length > 0){
-
+            this.cardToPlace = undefined;
             const drawnCard = this.drawPile['dP0'].shift();
             drawnCard.parentPileClass = 'activePile';
             drawnCard.pileId = 'aP0';
