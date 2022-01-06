@@ -194,7 +194,6 @@ class GameController{
         }
     }
     moveCard(newParentPileClass, newParentPileId){
-        console.log("CARD MOVE ENTERED");
 
         // Remove card obj from old pile
         const fromParentPileClass = this.cardToPlace.parentPileClass;
@@ -274,11 +273,13 @@ function handleClick(){
 
     // SET THE CARD TO PLACE
     if (gameController.cardToPlace == undefined){
-        if (this.id != ""){
+        if (this.id != "" && parentPileClass != 'scorePile'){
             const cardToPlace = clickedPile.find(obj => obj.id == this.id);
+            cardToPlace.index = clickedPile.indexOf(cardToPlace);
+            console.log(`Card to place index: ${cardToPlace.index}`);
             if (cardToPlace.isFaceUp()){
                 gameController.cardToPlace = cardToPlace;
-                console.log(`NEW CARD TO PLACE #1: ${this.id}`);
+                console.log(`NEW CARD TO PLACE: ${this.id}`);
             }
         }
     } 
