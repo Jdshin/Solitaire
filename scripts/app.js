@@ -110,15 +110,23 @@ class GameController{
         for (let rPileNum = 0; rPileNum <  $rePiles.length; rPileNum++){
             for (let k = 0; k <= rPileNum; k++){
                 const currCard = this.deck[currIdx];
+                if (k == 0){
+                    const bottomCardElem = $(`#rP${rPileNum} img`);
+                    console.log(currCard.id);
+                    bottomCardElem.attr('id', currCard.id);
+                    bottomCardElem.attr('src', backCardImgPath);
+                } else {
+                    const $cardHtml = this.createCardHtmlElem(currCard);
+                    $cardHtml.appendTo(`#rP${rPileNum}`);
+                }
+
                 if (k == rPileNum){
                     currCard.flipCard();
                 }
+
                 currCard.parentPileClass = 'rePile';
                 currCard.pileId = `rP${rPileNum}`;
                 this.rePile[`rP${rPileNum}`].push(currCard);
-
-                const $cardHtml = this.createCardHtmlElem(currCard);
-                $cardHtml.appendTo(`#rP${rPileNum}`);
                 currIdx += 1;
             }
         }
@@ -203,23 +211,28 @@ class GameController{
 
         poppedCards.forEach(card => {
             this.cardToPlace = card;
+
             // REMOVE HTML ELEMENT OF OLD CARD
             switch(fromParentPileClass){
+
                 case 'rePile':
-                    $(this.cardToPlace.htmlId).remove();
+                    // FOR THE LAST CARD IN MOVING STACK, DO NOT REMOVE HTML ELEMENT
                     const fromRePileLen = this[fromParentPileClass][fromParentPileId].length;
 
+                    if (poppedCards.indexOf(card) == poppedCards.length - 1 && fromRePileLen == 0){
+                        $(`#${fromParentPileId} img`).attr('src', emptyCardImgPath);
+                        $(`#${fromParentPileId} img`).attr('id', "");
+                    } else {
+                        $(this.cardToPlace.htmlId).remove();
+                    }
+                    
                     // FLIP CARD IF TOPMOST REPILE CARD IS FACEDOWN
                     if (fromRePileLen > 0){
                         this[fromParentPileClass][fromParentPileId][fromRePileLen-1].flipCard();
-                    } else {
-                        $(`#${fromParentPileId} img`).attr('src', emptyCardImgPath);
-                        $(`#${fromParentPileId} img`).attr('id', "");
-                    }
+                    } 
 
                 case 'activePile':
                     const activePileLength = this.activePile.aP0.length;
-                    // console.log(`SIZE OF OLD REPILE: ${this.activePile.aP0.length}`);
 
                     if (activePileLength > 0){
                         $activePileImg.attr('src', this.activePile.aP0[activePileLength-1].getImgSrc());
@@ -228,6 +241,7 @@ class GameController{
                         $activePileImg.attr('src', emptyCardImgPath);
                     }
                     break;
+
                 default:
                     break;
             }
