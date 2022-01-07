@@ -89,6 +89,7 @@ class GameController{
             'rP6': []
         };
         this.cardToPlace = undefined;
+        this.clicksEnabled = false;
     }
     checkOppSuit(cardToPlace, cardToReceive){
         if ((cardToPlace.suit == "H" || cardToPlace.suit == "D") && (cardToReceive.suit == "C" || cardToReceive.suit == "S")){
@@ -304,6 +305,20 @@ class GameController{
             gameController.resetCardToPlace();
         });
     }
+    toggleClicks(){
+        const $cards = $('.pile img');
+        if (this.clicksEnabled == false){
+            this.clicksEnabled = true;
+            $cards.on('click', handleClick);
+            $activePileImg.on('click', handleClick);
+            $drawPile.on('click', function(){gameController.drawCard()});
+        } else {
+            this.clicksEnabled = false;
+            $cards.off('click');
+            $activePileImg.off('click');
+            $drawPile.off('click');
+        }
+    }
 }
 
 function handleClick(){
@@ -344,7 +359,7 @@ function handleClick(){
                     }
                     break;
                 default: // no other valid moves
-                    this.resetCardToPlace();
+                    gameController.resetCardToPlace();
                     // this.cardToPlace.highlightToggle();
                     // this.cardToPlace = undefined;
                     break;
@@ -382,9 +397,5 @@ const gameController = new GameController();
 gameController.createDeck();
 gameController.shuffleDeck();
 gameController.populateBoard();
+gameController.toggleClicks();
 
-const $cards = $('.pile img');
-
-$cards.on('click', handleClick);
-$activePileImg.on('click', handleClick);
-$drawPile.on('click', function(){gameController.drawCard()});
