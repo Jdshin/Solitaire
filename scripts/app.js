@@ -13,6 +13,8 @@ const backCardImgPath = 'assets/back.svg';
 
 const ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 const suits = ["H", "S", "D", "C"];
+const highlightBorderProp = '5px solid yellow';
+const transparentBorderProp = '5px solid transparent';
 
 // Global to keep track of game state
 let numFaceUp = 0;
@@ -30,6 +32,7 @@ class Card {
         this.pileId = 'dP0';
         this._faceup = false;
         this._faceUpPath = `assets/${rank}${suit}.svg`;
+        this._highlighted = false;
     }
     isFaceUp(){
         return this._faceup;
@@ -44,6 +47,16 @@ class Card {
     }
     getImgSrc(){
         return this._faceUpPath;
+    }
+    highlightToggle(){
+        if (this._highlighted == false){
+            this._highlighted = true;
+            $(`${this.htmlId}`).css("border", highlightBorderProp);
+            // thisHTMLElem.attr('border-color', );
+        } else {
+            this._highlighted = false;
+            $(`${this.htmlId}`).css("border", transparentBorderProp);
+        }
     }
 }
 
@@ -184,8 +197,10 @@ class GameController{
             return true;
         } else {
             console.log("invalid rearrange move");
-            this.cardToPlace = undefined;
-            console.log(`RESET`);
+            // this.cardToPlace.highlightToggle();
+            // this.cardToPlace = undefined;
+            this.resetCardToPlace();
+            
             return false;
         }
     }
@@ -197,10 +212,16 @@ class GameController{
             return true;
         } else {
             console.log("invalid scoring move");
-            this.cardToPlace = undefined;
-            console.log(`RESET`);
+            // this.cardToPlace.highlightToggle();
+            // this.cardToPlace = undefined;
+            this.resetCardToPlace();
             return false;
         }
+    }
+    resetCardToPlace(){
+        this.cardToPlace.highlightToggle();
+        this.cardToPlace = undefined;
+        console.log(`RESET`);
     }
     moveCard(newParentPileClass, newParentPileId){
 
@@ -211,6 +232,7 @@ class GameController{
 
         poppedCards.forEach(card => {
             this.cardToPlace = card;
+            this.cardToPlace._highlighted = true;
 
             // REMOVE HTML ELEMENT OF OLD CARD
             switch(fromParentPileClass){
@@ -220,8 +242,10 @@ class GameController{
                     const fromRePileLen = this[fromParentPileClass][fromParentPileId].length;
 
                     if (poppedCards.indexOf(card) == poppedCards.length - 1 && fromRePileLen == 0){
-                        $(`#${fromParentPileId} img`).attr('src', emptyCardImgPath);
-                        $(`#${fromParentPileId} img`).attr('id', "");
+                        const emptyPileImg = $(`#${fromParentPileId} img`);
+                        emptyPileImg.attr('src', emptyCardImgPath);
+                        emptyPileImg.attr('id', "");
+                        emptyPileImg.css('border', transparentBorderProp);
                     } else {
                         $(this.cardToPlace.htmlId).remove();
                     }
@@ -270,9 +294,7 @@ class GameController{
                     break;
             }
         });
-            
-        this.cardToPlace = undefined;
-        console.log(`RESET`);
+        this.resetCardToPlace();
     }
 }
 
@@ -292,6 +314,7 @@ function handleClick(){
 
             if (cardToPlace.isFaceUp()){
                 gameController.cardToPlace = cardToPlace;
+                gameController.cardToPlace.highlightToggle();
                 console.log(`CARD TO PLACE: ${this.id}`);
             }
         }
@@ -313,7 +336,9 @@ function handleClick(){
                     }
                     break;
                 default: // no other valid moves
-                    this.cardToPlace = undefined;
+                    this.resetCardToPlace();
+                    // this.cardToPlace.highlightToggle();
+                    // this.cardToPlace = undefined;
                     break;
             }
         } 
@@ -334,7 +359,9 @@ function handleClick(){
                         }
                         break;
                     default:
-                        this.cardToPlace = undefined;
+                        this.resetCardToPlace();
+                        // this.cardToPlace.highlightToggle();
+                        // this.cardToPlace = undefined;
                         break;
                 }
             }
