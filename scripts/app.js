@@ -15,6 +15,7 @@ const ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 const suits = ["H", "S", "D", "C"];
 const highlightBorderProp = '5px solid yellow';
 const transparentBorderProp = '5px solid transparent';
+const overlayYPercent = 80;
 
 // Global to keep track of game state
 let numFaceUp = 0;
@@ -57,6 +58,9 @@ class Card {
             this._highlighted = false;
             $(`${this.htmlId}`).css("border", transparentBorderProp);
         }
+    }
+    setFaceUp(){
+        this._faceup = true;
     }
 }
 
@@ -130,6 +134,7 @@ class GameController{
                     bottomCardElem.attr('src', backCardImgPath);
                 } else {
                     const $cardHtml = this.createCardHtmlElem(currCard);
+                    $cardHtml.css("transform", `translateY(${k*-80}%)`);
                     $cardHtml.appendTo(`#rP${rPileNum}`);
                 }
 
@@ -176,18 +181,14 @@ class GameController{
             }
 
         } else {
-
             this.drawPile['dP0'] = this.activePile['aP0'];
             this.activePile['aP0'] = [];
-
             this.drawPile['dP0'].forEach(card => {
                 card.parentPileClass = 'drawPile';
                 card.pileId = 'dP0';
             });
-            
             $drawPileImg.attr('src', backCardImgPath);
             $activePileImg.attr('src', emptyCardImgPath);
-
         }
     }
     checkValidRearrangeMove(cardToPlace, cardToReceive){
@@ -200,7 +201,6 @@ class GameController{
             // this.cardToPlace.highlightToggle();
             // this.cardToPlace = undefined;
             this.resetCardToPlace();
-            
             return false;
         }
     }
@@ -229,18 +229,17 @@ class GameController{
         const fromParentPileClass = this.cardToPlace.parentPileClass;
         const fromParentPileId = this.cardToPlace.pileId;
         const poppedCards = this[fromParentPileClass][fromParentPileId].splice(this.cardToPlace.index);
+        const fromRePileLen = this[fromParentPileClass][fromParentPileId].length;
 
         poppedCards.forEach(card => {
             this.cardToPlace = card;
             this.cardToPlace._highlighted = true;
+            this.cardToPlace.setFaceUp();
 
             // REMOVE HTML ELEMENT OF OLD CARD
             switch(fromParentPileClass){
-
                 case 'rePile':
                     // FOR THE LAST CARD IN MOVING STACK, DO NOT REMOVE HTML ELEMENT
-                    const fromRePileLen = this[fromParentPileClass][fromParentPileId].length;
-
                     if (poppedCards.indexOf(card) == poppedCards.length - 1 && fromRePileLen == 0){
                         const emptyPileImg = $(`#${fromParentPileId} img`);
                         emptyPileImg.attr('src', emptyCardImgPath);
@@ -261,11 +260,11 @@ class GameController{
                     if (activePileLength > 0){
                         $activePileImg.attr('src', this.activePile.aP0[activePileLength-1].getImgSrc());
                         $activePileImg.attr('id', this.activePile.aP0[activePileLength-1].id);
+                        $activePileImg.css('border', transparentBorderProp);
                     } else {
                         $activePileImg.attr('src', emptyCardImgPath);
                     }
                     break;
-
                 default:
                     break;
             }
@@ -280,9 +279,18 @@ class GameController{
             // Update HTML at new card location
             switch(newParentPileClass){
                 case 'rePile':
-                    const newCardHtmlElem = this.createCardHtmlElem(this.cardToPlace);
-                    newCardHtmlElem.appendTo($(`#${this.cardToPlace.pileId}`));
-                    $(`${this.cardToPlace.htmlId}`).on('click', handleClick);
+                    const newPileLen = this[newParentPileClass][newParentPileId].length;
+
+                    if (newPileLen == 1){
+                        const newPileImg = $(`#${newParentPileId} img`);
+                        newPileImg.attr('src', this.cardToPlace.getImgSrc());
+                        newPileImg.attr('id', this.cardToPlace.id);
+                    } else {
+                        const $newCardHtmlElem = this.createCardHtmlElem(this.cardToPlace);
+                        $newCardHtmlElem.appendTo($(`#${this.cardToPlace.pileId}`));
+                        $newCardHtmlElem.css('transform', `translateY(${(newPileLen-1)*-overlayYPercent}%)`);
+                        $(`${this.cardToPlace.htmlId}`).on('click', handleClick);
+                    }
                     break;
                 case 'scorePile':
                     const $clickedScorePileImg = $(`#${newParentPileId} img`);
@@ -293,8 +301,8 @@ class GameController{
                     console.log("Invalid image update");
                     break;
             }
+            gameController.resetCardToPlace();
         });
-        this.resetCardToPlace();
     }
 }
 
