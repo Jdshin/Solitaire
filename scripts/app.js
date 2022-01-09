@@ -230,34 +230,31 @@ class GameController{
         const fromParentPileClass = this.cardToPlace.parentPileClass;
         const fromParentPileId = this.cardToPlace.pileId;
         const poppedCards = this[fromParentPileClass][fromParentPileId].splice(this.cardToPlace.index);
-        const fromRePileLen = this[fromParentPileClass][fromParentPileId].length;
+        const fromPileLen = this[fromParentPileClass][fromParentPileId].length;
+        console.log(`FROM PILE LENGTH: ${fromPileLen}`);
 
-        poppedCards.forEach(card => {
-            this.cardToPlace = card;
-            this.cardToPlace._highlighted = true;
-            this.cardToPlace.setFaceUp();
+        for (let i = 0; i < poppedCards.length; i++){
+            this.cardToPlace = poppedCards[i];
 
-            // REMOVE HTML ELEMENT OF OLD CARD
+            // REMOVE OLD HTML ELEMENT
             switch(fromParentPileClass){
                 case 'rePile':
-                    // FOR THE LAST CARD IN MOVING STACK, DO NOT REMOVE HTML ELEMENT
-                    if (poppedCards.indexOf(card) == poppedCards.length - 1 && fromRePileLen == 0){
-                        const emptyPileImg = $(`#${fromParentPileId} img`);
-                        emptyPileImg.attr('src', emptyCardImgPath);
-                        emptyPileImg.attr('id', "");
-                        emptyPileImg.css('border', transparentBorderProp);
-                    } else {
+                    if (fromPileLen > 0){
                         $(this.cardToPlace.htmlId).remove();
+                    } else {
+                        if (i == poppedCards.length - 1){
+                            const newlyEmptyPileImg = $(`#${fromParentPileId} img`);
+                            newlyEmptyPileImg.attr('src', emptyCardImgPath);
+                            newlyEmptyPileImg.attr('id', "");
+                            newlyEmptyPileImg.css('border', transparentBorderProp);
+                            newlyEmptyPileImg.css('transform', 'translateY(0%)');
+                        } else {
+                            $(this.cardToPlace.htmlId).remove();
+                        }
                     }
-                    
-                    // FLIP CARD IF TOPMOST REPILE CARD IS FACEDOWN
-                    if (fromRePileLen > 0){
-                        this[fromParentPileClass][fromParentPileId][fromRePileLen-1].flipCard();
-                    } 
-
+                    break;
                 case 'activePile':
                     const activePileLength = this.activePile.aP0.length;
-
                     if (activePileLength > 0){
                         $activePileImg.attr('src', this.activePile.aP0[activePileLength-1].getImgSrc());
                         $activePileImg.attr('id', this.activePile.aP0[activePileLength-1].id);
@@ -270,40 +267,130 @@ class GameController{
                     break;
             }
 
-            // UPDATE NEW PILE PROPERTIES
-            this.cardToPlace.parentPileClass = `${newParentPileClass}`;
+            // UPDATE CARD TO PLACE PROPERTIES
+            if (i == 0){
+                this.cardToPlace.highlightToggle();
+            }
+            this.cardToPlace.parentPileClass = newParentPileClass;
             this.cardToPlace.pileId = newParentPileId;
-
-            // Move card obj to new pile
             this[newParentPileClass][newParentPileId].push(this.cardToPlace);
 
-            // Update HTML at new card location
-            switch(newParentPileClass){
-                case 'rePile':
-                    const newPileLen = this[newParentPileClass][newParentPileId].length;
-
-                    if (newPileLen == 1){
-                        const newPileImg = $(`#${newParentPileId} img`);
-                        newPileImg.attr('src', this.cardToPlace.getImgSrc());
-                        newPileImg.attr('id', this.cardToPlace.id);
-                    } else {
-                        const $newCardHtmlElem = this.createCardHtmlElem(this.cardToPlace);
-                        $newCardHtmlElem.appendTo($(`#${this.cardToPlace.pileId}`));
-                        $newCardHtmlElem.css('transform', `translateY(${(newPileLen-1)*-overlayYPercent}%)`);
-                        $(`${this.cardToPlace.htmlId}`).on('click', handleClick);
-                    }
-                    break;
+            // UPDATE NEW HTML ELEMENT
+            switch (newParentPileClass){
                 case 'scorePile':
                     const $clickedScorePileImg = $(`#${newParentPileId} img`);
                     $clickedScorePileImg.attr('src', this.cardToPlace.getImgSrc());
                     $clickedScorePileImg.attr('id', this.cardToPlace.id);
                     break;
+                case 'rePile':
+                    let newRePileLen = this[newParentPileClass][newParentPileId].length;
+                    if (newRePileLen == 1){
+                        const prevEmptyRepileImg = $(`#${newParentPileId} img`);
+                        prevEmptyRepileImg.attr('src', this.cardToPlace.getImgSrc());
+                        prevEmptyRepileImg.attr('id', this.cardToPlace.id);
+                    } else {
+                        let $newCardHTMLElem = this.createCardHtmlElem(this.cardToPlace);
+                        const newPileLen = this[newParentPileClass][newParentPileId].length;
+                        $newCardHTMLElem.on('click', handleClick);
+                        $newCardHTMLElem.css('transform', `translateY(${-(newPileLen-1)*overlayYPercent}%)`);
+                        $newCardHTMLElem.appendTo($(`#${newParentPileId}`));
+                        if (i == poppedCards.length - 1){
+                            $newCardHTMLElem.css('border', transparentBorderProp);
+                        }
+                    }
                 default:
-                    console.log("Invalid image update");
                     break;
             }
-            gameController.resetCardToPlace();
-        });
+            // this.resetCardToPlace();
+            this.cardToPlace = undefined;
+            console.log("RESET");
+        }
+
+        // FLIP TOPMOST CARD IF FACEDOWN FROM OLD PILE
+        if (fromPileLen > 0){
+            this[fromParentPileClass][fromParentPileId][fromPileLen-1].flipCard();
+        }
+        
+        
+
+        // poppedCards.forEach(card => {
+        //     this.cardToPlace = card;
+        //     this.cardToPlace._highlighted = true;
+        //     this.cardToPlace.setFaceUp();
+
+        //     // REMOVE HTML ELEMENT OF OLD CARD
+        //     switch(fromParentPileClass){
+        //         case 'rePile':
+        //             // FOR THE LAST CARD IN MOVING STACK, DO NOT REMOVE HTML ELEMENT
+        //             if (poppedCards.indexOf(card) == poppedCards.length - 1 && fromRePileLen == 0){
+        //                 const emptyPileImg = $(`#${fromParentPileId} img`);
+        //                 emptyPileImg.attr('src', emptyCardImgPath);
+        //                 emptyPileImg.attr('id', "");
+        //                 emptyPileImg.css('transform', 'translateY(0%)');
+        //                 emptyPileImg.css('border', transparentBorderProp);
+        //             } else {
+        //                 $(this.cardToPlace.htmlId).remove();
+        //             }
+                    
+        //             // FLIP CARD IF TOPMOST REPILE CARD IS FACEDOWN
+        //             if (fromRePileLen > 0){
+        //                 this[fromParentPileClass][fromParentPileId][fromRePileLen-1].flipCard();
+        //             } 
+
+        //         case 'activePile':
+        //             const activePileLength = this.activePile.aP0.length;
+
+        //             if (activePileLength > 0){
+        //                 $activePileImg.attr('src', this.activePile.aP0[activePileLength-1].getImgSrc());
+        //                 $activePileImg.attr('id', this.activePile.aP0[activePileLength-1].id);
+        //                 $activePileImg.css('border', transparentBorderProp);
+        //             } else {
+        //                 $activePileImg.attr('src', emptyCardImgPath);
+        //             }
+        //             break;
+        //         default:
+        //             break;
+        //     }
+
+        //     // UPDATE NEW PILE PROPERTIES
+        //     this.cardToPlace.parentPileClass = `${newParentPileClass}`;
+        //     this.cardToPlace.pileId = newParentPileId;
+
+        //     // Move card obj to new pile
+        //     this[newParentPileClass][newParentPileId].push(this.cardToPlace);
+
+        //     // Update HTML at new card location
+        //     switch(newParentPileClass){
+        //         case 'rePile':
+        //             const newPileLen = this[newParentPileClass][newParentPileId].length;
+
+        //             if (newPileLen == 1){
+        //                 const newPileImg = $(`#${newParentPileId} img`);
+        //                 newPileImg.attr('src', this.cardToPlace.getImgSrc());
+        //                 newPileImg.attr('id', this.cardToPlace.id);
+        //                 gameController.resetCardToPlace();
+        //             } else {
+        //                 const $newCardHtmlElem = this.createCardHtmlElem(this.cardToPlace);
+        //                 $newCardHtmlElem.appendTo($(`#${this.cardToPlace.pileId}`));
+        //                 $newCardHtmlElem.css('transform', `translateY(${(newPileLen-1)*-overlayYPercent}%)`);
+        //                 const newHTMLElem = $(`#${this.cardToPlace.id}`);
+        //                 newHTMLElem.on('click', handleClick);
+        //                 console.log(newHTMLElem);
+        //                 gameController.resetCardToPlace();
+        //             }
+        //             break;
+        //         case 'scorePile':
+        //             const $clickedScorePileImg = $(`#${newParentPileId} img`);
+        //             $clickedScorePileImg.attr('src', this.cardToPlace.getImgSrc());
+        //             $clickedScorePileImg.attr('id', this.cardToPlace.id);
+        //             gameController.resetCardToPlace();
+        //             break;
+        //         default:
+        //             console.log("Invalid image update");
+        //             gameController.resetCardToPlace();
+        //             break;
+        //     }
+        // });
     }
     toggleClicks(){
         const $cards = $('.pile img');
@@ -334,6 +421,7 @@ function handleClick(){
         if (this.id != "" && parentPileClass != 'scorePile'){
             const cardToPlace = clickedPile.find(obj => obj.id == this.id);
             cardToPlace.index = clickedPile.indexOf(cardToPlace);
+            cardToPlace.htmlElem = $(cardToPlace.htmlId);
 
             if (cardToPlace.isFaceUp()){
                 gameController.cardToPlace = cardToPlace;
@@ -395,7 +483,7 @@ function handleClick(){
 const gameController = new GameController();
 
 gameController.createDeck();
-gameController.shuffleDeck();
+// gameController.shuffleDeck();
 gameController.populateBoard();
 gameController.toggleClicks();
 
