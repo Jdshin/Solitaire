@@ -20,7 +20,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 3%;
+    padding: 2%;
     max-width:max-content;
 }
 
@@ -69,4 +69,10 @@ button {
     font-weight: 1000;
     margin-left: 50px;
     margin-top: 30px;
+    border-radius: 15px;
+    transition-duration: 0.2s;
+}
+
+button:hover {
+    background-color: grey;
 }
