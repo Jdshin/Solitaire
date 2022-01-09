@@ -165,7 +165,7 @@ class GameController{
             const drawnCard = this.drawPile['dP0'].shift();
             drawnCard.enableHighlight(false);
             $activePileImg.css('border', transparentBorderProp);
-            
+
             drawnCard.parentPileClass = 'activePile';
             drawnCard.pileId = 'aP0';
 
@@ -230,6 +230,7 @@ class GameController{
                 case 'rePile':
                     if (fromPileLen > 0){
                         $(this.cardToPlace.htmlId).remove();
+                        console.log("LINE 233 REMOVE");
                     } else {
                         if (i == poppedCards.length - 1){
                             const newlyEmptyPileImg = $(`#${fromParentPileId} img`);
@@ -239,6 +240,7 @@ class GameController{
                             newlyEmptyPileImg.css('transform', 'translateY(0%)');
                         } else {
                             $(this.cardToPlace.htmlId).remove();
+                            console.log("LINE 243 REMOVE");
                         }
                     }
                     break;
@@ -251,6 +253,7 @@ class GameController{
                     } else {
                         $activePileImg.attr('src', emptyCardImgPath);
                         $activePileImg.attr('id', "");
+                        $activePileImg.css('border', transparentBorderProp);
                     }
                     break;
                 default:
