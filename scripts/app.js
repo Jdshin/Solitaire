@@ -319,13 +319,9 @@ class GameController{
         if (this.clicksEnabled == false){
             this.clicksEnabled = true;
             $cards.on('click', handleClick);
-            $activePileImg.on('click', handleClick);
-            $drawPile.on('click', function(){gameController.drawCard()});
         } else {
             this.clicksEnabled = false;
-            $cards.off('click');
-            $activePileImg.off('click');
-            $drawPile.off('click');
+            $cards.off('click', handleClick);
         }
     }
     sayHello(){
@@ -334,71 +330,76 @@ class GameController{
 }
 
 function handleClick(){
-    const clickedCardElem = $(this);
-    const parentElem = clickedCardElem.parent();
-    
-    const parentPileClass = parentElem[0].className.split(" ")[1];
-    const parentPileId = parentElem[0].id;
-    const clickedPile = gameController[parentPileClass][parentPileId];
 
-    // SET THE CARD TO PLACE
-    if (gameController.cardToPlace == undefined){
-        if (this.id != "" && parentPileClass != 'scorePile'){
-            const cardToPlace = clickedPile.find(obj => obj.id == this.id);
-            cardToPlace.index = clickedPile.indexOf(cardToPlace);
-            cardToPlace.htmlElem = $(cardToPlace.htmlId);
+    if (this.id == 'draw'){
+        gameController.drawCard();
+    } else {
+        const clickedCardElem = $(this);
+        const parentElem = clickedCardElem.parent();
+        
+        const parentPileClass = parentElem[0].className.split(" ")[1];
+        const parentPileId = parentElem[0].id;
+        const clickedPile = gameController[parentPileClass][parentPileId];
 
-            if (cardToPlace.isFaceUp()){
-                gameController.cardToPlace = cardToPlace;
-                gameController.cardToPlace.highlightToggle();
-                console.log(`CARD TO PLACE: ${this.id}`);
-            }
-        }
-    } 
-    
-    // SET THE CARD TO RECEIVE
-    else {
-        // IF NEW PILE IS EMPTY
-        if (this.id == ""){
-            switch (parentPileClass){
-                case 'rePile': // Only valid move is to place king on empty rearrange pile
-                    if (gameController.cardToPlace.rank == 13){
-                        gameController.moveCard(parentPileClass, parentPileId);     
-                    } 
-                    break;
-                case 'scorePile': // only valid move is to place ace on empty score pile
-                    if (gameController.cardToPlace.rank == 1){
-                        gameController.moveCard(parentPileClass, parentPileId);
-                    }
-                    break;
-                default: // no other valid moves
-                    gameController.resetCardToPlace();
-                    // this.cardToPlace.highlightToggle();
-                    // this.cardToPlace = undefined;
-                    break;
+        // SET THE CARD TO PLACE
+        if (gameController.cardToPlace == undefined){
+            if (this.id != "" && parentPileClass != 'scorePile'){
+                const cardToPlace = clickedPile.find(obj => obj.id == this.id);
+                cardToPlace.index = clickedPile.indexOf(cardToPlace);
+                cardToPlace.htmlElem = $(cardToPlace.htmlId);
+
+                if (cardToPlace.isFaceUp()){
+                    gameController.cardToPlace = cardToPlace;
+                    gameController.cardToPlace.highlightToggle();
+                    console.log(`CARD TO PLACE: ${this.id}`);
+                }
             }
         } 
         
-        // IF NEW PILE HAS CARDS
-        else if (this.id != gameController.cardToPlace.id && parentPileClass != 'activePile') {
-            const cardToReceive = clickedPile.find(obj => obj.id == this.id);
-
-            if (cardToReceive.isFaceUp()){
+        // SET THE CARD TO RECEIVE
+        else {
+            // IF NEW PILE IS EMPTY
+            if (this.id == ""){
                 switch (parentPileClass){
-                    case 'rePile': 
-                        gameController.checkValidRearrangeMove(gameController.cardToPlace, cardToReceive); 
+                    case 'rePile': // Only valid move is to place king on empty rearrange pile
+                        if (gameController.cardToPlace.rank == 13){
+                            gameController.moveCard(parentPileClass, parentPileId);     
+                        } 
                         break;
-                    case 'scorePile':
-                        const cardToPlaceParentPileLen = gameController[gameController.cardToPlace.parentPileClass][gameController.cardToPlace.pileId].length;
-                        if (gameController.cardToPlace.index == cardToPlaceParentPileLen - 1){
-                            gameController.checkValidScoreMove(gameController.cardToPlace, cardToReceive);
+                    case 'scorePile': // only valid move is to place ace on empty score pile
+                        if (gameController.cardToPlace.rank == 1){
+                            gameController.moveCard(parentPileClass, parentPileId);
                         }
                         break;
-                    default:
-                        this.resetCardToPlace();
+                    default: // no other valid moves
+                        gameController.resetCardToPlace();
                         // this.cardToPlace.highlightToggle();
                         // this.cardToPlace = undefined;
                         break;
+                }
+            } 
+            
+            // IF NEW PILE HAS CARDS
+            else if (this.id != gameController.cardToPlace.id && parentPileClass != 'activePile') {
+                const cardToReceive = clickedPile.find(obj => obj.id == this.id);
+
+                if (cardToReceive.isFaceUp()){
+                    switch (parentPileClass){
+                        case 'rePile': 
+                            gameController.checkValidRearrangeMove(gameController.cardToPlace, cardToReceive); 
+                            break;
+                        case 'scorePile':
+                            const cardToPlaceParentPileLen = gameController[gameController.cardToPlace.parentPileClass][gameController.cardToPlace.pileId].length;
+                            if (gameController.cardToPlace.index == cardToPlaceParentPileLen - 1){
+                                gameController.checkValidScoreMove(gameController.cardToPlace, cardToReceive);
+                            }
+                            break;
+                        default:
+                            this.resetCardToPlace();
+                            // this.cardToPlace.highlightToggle();
+                            // this.cardToPlace = undefined;
+                            break;
+                    }
                 }
             }
         }
@@ -411,6 +412,7 @@ function startNewGame(){
         gameController.clicksEnabled = false;
         gameController.drawPile.dP0 = [];
         gameController.activePile.aP0 = [];
+
 
         $activePileImg.off();
         $drawPileImg.off();
