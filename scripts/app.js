@@ -23,8 +23,6 @@ const overlayYPercent = 80;
 // Global to keep track of game state
 let numFaceUp = 0;
 
-
-
 class Card {
     constructor(rank, suit){
         this.rank = rank;
@@ -55,7 +53,6 @@ class Card {
         if (this._highlighted == false){
             this._highlighted = true;
             $(`${this.htmlId}`).css("border", highlightBorderProp);
-            // thisHTMLElem.attr('border-color', );
         } else {
             this._highlighted = false;
             $(`${this.htmlId}`).css("border", transparentBorderProp);
@@ -101,8 +98,8 @@ class GameController{
         }
         return false;
     }
-    //Uses Fisher-Yates algo
     shuffleDeck(){
+        //Uses Fisher-Yates algo
         for (let i = this.deck.length-1; i > 0; i--){
             const rand = Math.floor(Math.random()*i);
             const temp = this.deck[i];
@@ -196,27 +193,18 @@ class GameController{
     }
     checkValidRearrangeMove(cardToPlace, cardToReceive){
         if ((cardToPlace.rank == cardToReceive.rank - 1) && this.checkOppSuit(cardToPlace, cardToReceive)){
-            console.log(`valid rearrange move, card to receive parent class: ${cardToReceive.parentPileClass} ${cardToReceive.pileId}`);
             this.moveCard(cardToReceive.parentPileClass, cardToReceive.pileId);
             return true;
         } else {
-            console.log("invalid rearrange move");
-            // this.cardToPlace.highlightToggle();
-            // this.cardToPlace = undefined;
             this.resetCardToPlace();
             return false;
         }
     }
     checkValidScoreMove(cardToPlace, cardToReceive){
-        console.log(`Score Move: PlaceCardRank: ${cardToPlace.rank} ReceiveCardRank: ${cardToReceive.rank}`);
-        console.log(`Score Move: PlaceCardSuit: ${cardToPlace.suit} ReceiveCardSuit: ${cardToReceive.suit}`);
         if ((cardToPlace.rank == cardToReceive.rank + 1) && (cardToPlace.suit == cardToReceive.suit)){
             this.moveCard(cardToReceive.parentPileClass, cardToReceive.pileId);
             return true;
         } else {
-            console.log("invalid scoring move");
-            // this.cardToPlace.highlightToggle();
-            // this.cardToPlace = undefined;
             this.resetCardToPlace();
             return false;
         }
@@ -224,7 +212,6 @@ class GameController{
     resetCardToPlace(){
         this.cardToPlace.highlightToggle();
         this.cardToPlace = undefined;
-        console.log(`RESET`);
     }
     moveCard(newParentPileClass, newParentPileId){
 
@@ -233,7 +220,6 @@ class GameController{
         const fromParentPileId = this.cardToPlace.pileId;
         const poppedCards = this[fromParentPileClass][fromParentPileId].splice(this.cardToPlace.index);
         const fromPileLen = this[fromParentPileClass][fromParentPileId].length;
-        console.log(`FROM PILE LENGTH: ${fromPileLen}`);
 
         for (let i = 0; i < poppedCards.length; i++){
             this.cardToPlace = poppedCards[i];
@@ -303,9 +289,7 @@ class GameController{
                 default:
                     break;
             }
-            // this.resetCardToPlace();
             this.cardToPlace = undefined;
-            console.log("RESET");
         }
 
         // FLIP TOPMOST CARD IF FACEDOWN FROM OLD PILE
@@ -324,19 +308,14 @@ class GameController{
             $cards.off('click', handleClick);
         }
     }
-    sayHello(){
-        console.log("Hello");
-    }
 }
 
 function handleClick(){
-
     if (this.id == 'draw'){
         gameController.drawCard();
     } else {
         const clickedCardElem = $(this);
         const parentElem = clickedCardElem.parent();
-        
         const parentPileClass = parentElem[0].className.split(" ")[1];
         const parentPileId = parentElem[0].id;
         const clickedPile = gameController[parentPileClass][parentPileId];
@@ -351,7 +330,6 @@ function handleClick(){
                 if (cardToPlace.isFaceUp()){
                     gameController.cardToPlace = cardToPlace;
                     gameController.cardToPlace.highlightToggle();
-                    console.log(`CARD TO PLACE: ${this.id}`);
                 }
             }
         } 
@@ -373,8 +351,6 @@ function handleClick(){
                         break;
                     default: // no other valid moves
                         gameController.resetCardToPlace();
-                        // this.cardToPlace.highlightToggle();
-                        // this.cardToPlace = undefined;
                         break;
                 }
             } 
@@ -396,8 +372,6 @@ function handleClick(){
                             break;
                         default:
                             this.resetCardToPlace();
-                            // this.cardToPlace.highlightToggle();
-                            // this.cardToPlace = undefined;
                             break;
                     }
                 }
@@ -413,7 +387,7 @@ function startNewGame(){
         gameController.drawPile.dP0 = [];
         gameController.activePile.aP0 = [];
 
-
+        // Turn off all event listeners
         $activePileImg.off();
         $drawPileImg.off();
         $scorePileImgs.off();
@@ -432,29 +406,24 @@ function startNewGame(){
         gameController.setDrawPileFace();
         $activePileImg.attr('src', emptyCardImgPath);
         $activePileImg.attr('id', "");
-        console.log($scorePileImgs);
         $scorePileImgs.attr('src', emptyCardImgPath);
         $scorePileImgs.attr('id', "");
 
         const $newEmptyImg = $(`<img src=${emptyCardImgPath}>`);
         const $rePileHtmlElems = $('.rePile');
+        
         $rePileHtmlElems.children().remove();
         $newEmptyImg.appendTo($rePileHtmlElems);
-
+        
         gameController.createDeck();
-        // gameController.shuffleDeck();
+        gameController.shuffleDeck();
         gameController.populateBoard();
         gameController.toggleClicks();
+
     } else {
         console.log("Game Controller Not Initialized");
     }
 }
 
 const gameController = new GameController();
-
-// gameController.createDeck();
-// gameController.shuffleDeck();
-// gameController.populateBoard();
-// gameController.toggleClicks();
-
 startNewGame();
