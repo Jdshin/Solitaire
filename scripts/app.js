@@ -11,6 +11,9 @@ const $emptyCards = $("img");
 const emptyCardImgPath = 'assets/empty.svg';
 const backCardImgPath = 'assets/back.svg';
 
+// Button references
+const $newGameBut = $(`#newGameBut`);
+
 const ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 const suits = ["H", "S", "D", "C"];
 const highlightBorderProp = '7px solid yellow';
@@ -20,8 +23,7 @@ const overlayYPercent = 80;
 // Global to keep track of game state
 let numFaceUp = 0;
 
-// Set empty image as undraggable
-$emptyCards.each(function(){this.draggable = false});
+
 
 class Card {
     constructor(rank, suit){
@@ -313,6 +315,7 @@ class GameController{
     }
     toggleClicks(){
         const $cards = $('.pile img');
+        $newGameBut.on('click', startNewGame);
         if (this.clicksEnabled == false){
             this.clicksEnabled = true;
             $cards.on('click', handleClick);
@@ -324,6 +327,9 @@ class GameController{
             $activePileImg.off('click');
             $drawPile.off('click');
         }
+    }
+    sayHello(){
+        console.log("Hello");
     }
 }
 
@@ -399,10 +405,54 @@ function handleClick(){
     }
 }
 
+function startNewGame(){
+    if (gameController != undefined){
+        gameController.deck = [];
+        gameController.clicksEnabled = false;
+        gameController.drawPile.dP0 = [];
+        gameController.activePile.aP0 = [];
+
+        $activePileImg.off();
+        $drawPileImg.off();
+        $scorePileImgs.off();
+
+        // Set empty image as undraggable
+        $emptyCards.each(function(){this.draggable = false});
+
+        for (let i = 0; i < Object.keys(gameController.scorePile).length; i++){
+            gameController.scorePile[`sP${i}`] = [];
+        }
+
+        for (let j = 0; j < Object.keys(gameController.rePile).length; j++){
+            gameController.rePile[`rP${j}`] = [];
+        }
+
+        gameController.setDrawPileFace();
+        $activePileImg.attr('src', emptyCardImgPath);
+        $activePileImg.attr('id', "");
+        console.log($scorePileImgs);
+        $scorePileImgs.attr('src', emptyCardImgPath);
+        $scorePileImgs.attr('id', "");
+
+        const $newEmptyImg = $(`<img src=${emptyCardImgPath}>`);
+        const $rePileHtmlElems = $('.rePile');
+        $rePileHtmlElems.children().remove();
+        $newEmptyImg.appendTo($rePileHtmlElems);
+
+        gameController.createDeck();
+        // gameController.shuffleDeck();
+        gameController.populateBoard();
+        gameController.toggleClicks();
+    } else {
+        console.log("Game Controller Not Initialized");
+    }
+}
+
 const gameController = new GameController();
 
-gameController.createDeck();
-gameController.shuffleDeck();
-gameController.populateBoard();
-gameController.toggleClicks();
+// gameController.createDeck();
+// gameController.shuffleDeck();
+// gameController.populateBoard();
+// gameController.toggleClicks();
 
+startNewGame();
