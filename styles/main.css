@@ -14,8 +14,16 @@ body {
 .gameScoreBox {
     display: flex;
     justify-content: center;
-    font-size: x-large;
-    min-width: 300px;
+    align-items: center;
+    font-size: xxx-large;
+    width: fit-content;
+    padding-left: 100px;
+    padding-right: 100px;
+    margin-left: 50px;
+    margin-right: 50px;
+    margin-top: 30px;
+    border-radius: 12px;
+    background-color: beige;
 }
 
 .gameBox {
@@ -70,10 +78,13 @@ img {
 }
 
 button {
-    width: 200px;
-    height: 120px;
-    font-size: 30px;
-    font-weight: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    height: fit-content;
+    padding: 0.5em;
+    font-size: xxx-large;
     margin-left: 50px;
     margin-right: 50px;
     margin-top: 30px;

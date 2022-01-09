@@ -11,6 +11,13 @@ const backCardImgPath = 'assets/back.svg';
 // Button references
 const $newGameBut = $(`#newGameBut`);
 
+//Global score
+let gameScore = 0;
+
+// Score display reference
+const $gameScoreBox = $('.gameScoreBox');
+
+// Game data and paths
 const ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 const suits = ["H", "S", "D", "C"];
 const highlightBorderProp = '7px solid yellow';
@@ -301,6 +308,8 @@ class GameController{
         // FLIP TOPMOST CARD IF FACEDOWN FROM OLD PILE
         if (fromPileLen > 0 && fromParentPileClass != 'activePile'){
             this[fromParentPileClass][fromParentPileId][fromPileLen-1].flipCard();
+            gameScore += 10;
+            $gameScoreBox.html(`Score: ${gameScore}`);
         }
     }
     toggleClicks(){
@@ -320,7 +329,7 @@ class GameController{
             numFaceUp += this.scorePile[`sP${i}`].length;
         }
         if (numFaceUp == 52){
-            console.log("YOU WIN!!");
+            $gameScoreBox.html(`You Win! Final Score: ${gameScore}`);
         }
     }
 }
@@ -397,6 +406,8 @@ function handleClick(){
 
 function startNewGame(){
     if (gameController != undefined){
+        gameScore = 0;
+        $gameScoreBox.html("Score: 0");
         gameController.deck = [];
         gameController.clicksEnabled = false;
         gameController.drawPile.dP0 = [];
