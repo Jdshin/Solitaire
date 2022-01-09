@@ -54,6 +54,9 @@ class Card {
     setFaceUp(){
         this._faceup = true;
     }
+    enableHighlight(bool){
+        this._highlighted = bool;
+    }
 }
 
 class GameController{
@@ -158,12 +161,17 @@ class GameController{
     drawCard(){
         if (this.drawPile['dP0'].length > 0){
             this.cardToPlace = undefined;
+
             const drawnCard = this.drawPile['dP0'].shift();
+            drawnCard.enableHighlight(false);
+            $activePileImg.css('border', transparentBorderProp);
+            
             drawnCard.parentPileClass = 'activePile';
             drawnCard.pileId = 'aP0';
 
-            this.activePile['aP0'].push(drawnCard);
             drawnCard.flipCard();
+            this.activePile['aP0'].push(drawnCard);
+            
             
             $activePileImg.attr('src', drawnCard.getImgSrc());
             $activePileImg.attr('id', drawnCard.id);
@@ -242,6 +250,7 @@ class GameController{
                         $activePileImg.css('border', transparentBorderProp);
                     } else {
                         $activePileImg.attr('src', emptyCardImgPath);
+                        $activePileImg.attr('id', "");
                     }
                     break;
                 default:
@@ -283,10 +292,11 @@ class GameController{
                     break;
             }
             this.cardToPlace = undefined;
+            this.checkWin();
         }
 
         // FLIP TOPMOST CARD IF FACEDOWN FROM OLD PILE
-        if (fromPileLen > 0){
+        if (fromPileLen > 0 && fromParentPileClass != 'activePile'){
             this[fromParentPileClass][fromParentPileId][fromPileLen-1].flipCard();
         }
     }
@@ -299,6 +309,15 @@ class GameController{
         } else {
             this.clicksEnabled = false;
             $cards.off('click', handleClick);
+        }
+    }
+    checkWin(){
+        let numFaceUp = 0;
+        for (let i = 0; i < Object.keys(this.scorePile).length; i++){
+            numFaceUp += this.scorePile[`sP${i}`].length;
+        }
+        if (numFaceUp == 52){
+            console.log("YOU WIN!!");
         }
     }
 }
@@ -409,7 +428,7 @@ function startNewGame(){
         $newEmptyImg.appendTo($rePileHtmlElems);
         
         gameController.createDeck();
-        gameController.shuffleDeck();
+        // gameController.shuffleDeck();
         gameController.populateBoard();
         gameController.toggleClicks();
 
