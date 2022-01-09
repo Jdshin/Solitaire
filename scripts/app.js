@@ -356,7 +356,9 @@ function handleClick(){
                     gameController.cardToPlace.highlightToggle();
                 }
             }
-        } 
+        } else if (this.id == gameController.cardToPlace.id){
+            gameController.resetCardToPlace();
+        }
         
         // SET THE CARD TO RECEIVE
         else {
@@ -366,11 +368,15 @@ function handleClick(){
                     case 'rePile': // Only valid move is to place king on empty rearrange pile
                         if (gameController.cardToPlace.rank == 13){
                             gameController.moveCard(parentPileClass, parentPileId);     
-                        } 
+                        } else {
+                            gameController.resetCardToPlace();
+                        }
                         break;
                     case 'scorePile': // only valid move is to place ace on empty score pile
                         if (gameController.cardToPlace.rank == 1){
                             gameController.moveCard(parentPileClass, parentPileId);
+                        } else {
+                            gameController.resetCardToPlace();
                         }
                         break;
                     default: // no other valid moves
