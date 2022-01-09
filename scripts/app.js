@@ -1,11 +1,8 @@
 // div holders and drop areas
-const $drawPile = $(".drawPile");
 const $drawPileImg = $(".drawPile img");
 const $activePileImg = $(".activePile img");
 const $scorePileImgs = $('.scorePile img');
 const $rePiles = $('.rePile');
-
-const $piles = $(".pile");
 const $emptyCards = $("img");
 
 const emptyCardImgPath = 'assets/empty.svg';
@@ -19,9 +16,6 @@ const suits = ["H", "S", "D", "C"];
 const highlightBorderProp = '7px solid yellow';
 const transparentBorderProp = '7px solid transparent';
 const overlayYPercent = 80;
-
-// Global to keep track of game state
-let numFaceUp = 0;
 
 class Card {
     constructor(rank, suit){
@@ -43,7 +37,6 @@ class Card {
             this._faceup = true;
             const $thisCard = $(`${this.htmlId}`);
             $thisCard.attr('src', this._faceUpPath);
-            numFaceUp += 1;
         }
     }
     getImgSrc(){
