@@ -1,6 +1,10 @@
 nav {
     display: flex;
-    border: 1px solid black;
+    flex-direction: row;
+    justify-content: space-between;
+    min-height: 100px;
+    max-width: max-content;
+    padding: 1%;
 }
 
 body {
@@ -15,14 +19,27 @@ body {
 .gameRow {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     padding: 3%;
+    max-width:max-content;
+}
+
+.drawActiveContainer {
+    display: flex;
+    flex-direction: row;
+    padding-right: 10em;
+}
+
+.scorePileContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
 }
 
 .pile {
     display: flex;
     position: relative;
-    height: 200px;
-    width: 200px;
+    height: fit-content;
     padding: 1%;
 }
 
@@ -32,7 +49,24 @@ body {
     height: fit-content;
 }
 
+.drawPile {
+    padding-right: 3em;
+}
+
 img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 200px;
+    max-height: 220px;
+    min-width: 100px;
+    min-width: 110px;
+    border: 7px solid transparent;
+    border-radius: 10px;
+}
+
+button {
+    width: 200px;
+    height: 120px;
+    font-size: 30px;
+    font-weight: 1000;
+    margin-left: 50px;
+    margin-top: 30px;
 }
