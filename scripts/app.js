@@ -13,8 +13,8 @@ const backCardImgPath = 'assets/back.svg';
 
 const ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 const suits = ["H", "S", "D", "C"];
-const highlightBorderProp = '5px solid yellow';
-const transparentBorderProp = '5px solid transparent';
+const highlightBorderProp = '7px solid yellow';
+const transparentBorderProp = '7px solid transparent';
 const overlayYPercent = 80;
 
 // Global to keep track of game state
@@ -310,87 +310,6 @@ class GameController{
         if (fromPileLen > 0){
             this[fromParentPileClass][fromParentPileId][fromPileLen-1].flipCard();
         }
-        
-        
-
-        // poppedCards.forEach(card => {
-        //     this.cardToPlace = card;
-        //     this.cardToPlace._highlighted = true;
-        //     this.cardToPlace.setFaceUp();
-
-        //     // REMOVE HTML ELEMENT OF OLD CARD
-        //     switch(fromParentPileClass){
-        //         case 'rePile':
-        //             // FOR THE LAST CARD IN MOVING STACK, DO NOT REMOVE HTML ELEMENT
-        //             if (poppedCards.indexOf(card) == poppedCards.length - 1 && fromRePileLen == 0){
-        //                 const emptyPileImg = $(`#${fromParentPileId} img`);
-        //                 emptyPileImg.attr('src', emptyCardImgPath);
-        //                 emptyPileImg.attr('id', "");
-        //                 emptyPileImg.css('transform', 'translateY(0%)');
-        //                 emptyPileImg.css('border', transparentBorderProp);
-        //             } else {
-        //                 $(this.cardToPlace.htmlId).remove();
-        //             }
-                    
-        //             // FLIP CARD IF TOPMOST REPILE CARD IS FACEDOWN
-        //             if (fromRePileLen > 0){
-        //                 this[fromParentPileClass][fromParentPileId][fromRePileLen-1].flipCard();
-        //             } 
-
-        //         case 'activePile':
-        //             const activePileLength = this.activePile.aP0.length;
-
-        //             if (activePileLength > 0){
-        //                 $activePileImg.attr('src', this.activePile.aP0[activePileLength-1].getImgSrc());
-        //                 $activePileImg.attr('id', this.activePile.aP0[activePileLength-1].id);
-        //                 $activePileImg.css('border', transparentBorderProp);
-        //             } else {
-        //                 $activePileImg.attr('src', emptyCardImgPath);
-        //             }
-        //             break;
-        //         default:
-        //             break;
-        //     }
-
-        //     // UPDATE NEW PILE PROPERTIES
-        //     this.cardToPlace.parentPileClass = `${newParentPileClass}`;
-        //     this.cardToPlace.pileId = newParentPileId;
-
-        //     // Move card obj to new pile
-        //     this[newParentPileClass][newParentPileId].push(this.cardToPlace);
-
-        //     // Update HTML at new card location
-        //     switch(newParentPileClass){
-        //         case 'rePile':
-        //             const newPileLen = this[newParentPileClass][newParentPileId].length;
-
-        //             if (newPileLen == 1){
-        //                 const newPileImg = $(`#${newParentPileId} img`);
-        //                 newPileImg.attr('src', this.cardToPlace.getImgSrc());
-        //                 newPileImg.attr('id', this.cardToPlace.id);
-        //                 gameController.resetCardToPlace();
-        //             } else {
-        //                 const $newCardHtmlElem = this.createCardHtmlElem(this.cardToPlace);
-        //                 $newCardHtmlElem.appendTo($(`#${this.cardToPlace.pileId}`));
-        //                 $newCardHtmlElem.css('transform', `translateY(${(newPileLen-1)*-overlayYPercent}%)`);
-        //                 const newHTMLElem = $(`#${this.cardToPlace.id}`);
-        //                 newHTMLElem.on('click', handleClick);
-        //                 console.log(newHTMLElem);
-        //                 gameController.resetCardToPlace();
-        //             }
-        //             break;
-        //         case 'scorePile':
-        //             const $clickedScorePileImg = $(`#${newParentPileId} img`);
-        //             $clickedScorePileImg.attr('src', this.cardToPlace.getImgSrc());
-        //             $clickedScorePileImg.attr('id', this.cardToPlace.id);
-        //             gameController.resetCardToPlace();
-        //             break;
-        //         default:
-        //             console.log("Invalid image update");
-        //             gameController.resetCardToPlace();
-        //             break;
-        //     }
-        // });
     }
     toggleClicks(){
         const $cards = $('.pile img');
@@ -483,7 +402,7 @@ function handleClick(){
 const gameController = new GameController();
 
 gameController.createDeck();
-// gameController.shuffleDeck();
+gameController.shuffleDeck();
 gameController.populateBoard();
 gameController.toggleClicks();
 
