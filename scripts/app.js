@@ -237,7 +237,6 @@ class GameController{
                 case 'rePile':
                     if (fromPileLen > 0){
                         $(this.cardToPlace.htmlId).remove();
-                        console.log("LINE 233 REMOVE");
                     } else {
                         if (i == poppedCards.length - 1){
                             const newlyEmptyPileImg = $(`#${fromParentPileId} img`);
@@ -247,7 +246,6 @@ class GameController{
                             newlyEmptyPileImg.css('transform', 'translateY(0%)');
                         } else {
                             $(this.cardToPlace.htmlId).remove();
-                            console.log("LINE 243 REMOVE");
                         }
                     }
                     break;
@@ -306,7 +304,7 @@ class GameController{
         }
 
         // FLIP TOPMOST CARD IF FACEDOWN FROM OLD PILE
-        if (fromPileLen > 0 && fromParentPileClass != 'activePile'){
+        if (fromPileLen > 0 && fromParentPileClass != 'activePile' && this[fromParentPileClass][fromParentPileId][fromPileLen-1].isFaceUp() == false){
             this[fromParentPileClass][fromParentPileId][fromPileLen-1].flipCard();
             gameScore += 10;
             $gameScoreBox.html(`Score: ${gameScore}`);
