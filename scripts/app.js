@@ -160,13 +160,17 @@ class GameController{
     }
     setDrawPileFace(){
         if (this.drawPile['dP0'].length == 0){
-            $drawPileImg.attr('src', `${emptyCardImgPath}`);
+            $drawPileImg.attr('src', emptyCardImgPath);
         } else {
-            $drawPileImg.attr('src', `${backCardImgPath}`);
+            $drawPileImg.attr('src', backCardImgPath);
         }
     }
     drawCard(){
         if (this.drawPile['dP0'].length > 0){
+            
+            if (this.cardToPlace != undefined){
+                this.cardToPlace.highlightToggle();
+            }
             this.cardToPlace = undefined;
 
             const drawnCard = this.drawPile['dP0'].shift();
@@ -184,10 +188,6 @@ class GameController{
             $activePileImg.attr('id', drawnCard.id);
             $activePileImg.attr('class', 'card');
 
-            if (this.drawPile['dP0'].length == 0){
-                this.setDrawPileFace();
-            }
-
         } else {
             this.drawPile['dP0'] = this.activePile['aP0'];
             this.activePile['aP0'] = [];
@@ -195,9 +195,9 @@ class GameController{
                 card.parentPileClass = 'drawPile';
                 card.pileId = 'dP0';
             });
-            $drawPileImg.attr('src', backCardImgPath);
             $activePileImg.attr('src', emptyCardImgPath);
         }
+        this.setDrawPileFace();
     }
     checkValidRearrangeMove(cardToPlace, cardToReceive){
         if ((cardToPlace.rank == cardToReceive.rank - 1) && this.checkOppSuit(cardToPlace, cardToReceive)){
@@ -362,8 +362,11 @@ function handleClick(){
         
         // SET THE CARD TO RECEIVE
         else {
+            if (parentPileClass == 'activePile'){
+                gameController.resetCardToPlace();
+            }
             // IF NEW PILE IS EMPTY
-            if (this.id == ""){
+            else if (this.id == ""){
                 switch (parentPileClass){
                     case 'rePile': // Only valid move is to place king on empty rearrange pile
                         if (gameController.cardToPlace.rank == 13){
