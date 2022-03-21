@@ -160,13 +160,17 @@ class GameController{
     }
     setDrawPileFace(){
         if (this.drawPile['dP0'].length == 0){
-            $drawPileImg.attr('src', `${emptyCardImgPath}`);
+            $drawPileImg.attr('src', emptyCardImgPath);
         } else {
-            $drawPileImg.attr('src', `${backCardImgPath}`);
+            $drawPileImg.attr('src', backCardImgPath);
         }
     }
     drawCard(){
         if (this.drawPile['dP0'].length > 0){
+            
+            if (this.cardToPlace != undefined){
+                this.cardToPlace.highlightToggle();
+            }
             this.cardToPlace = undefined;
 
             const drawnCard = this.drawPile['dP0'].shift();
@@ -184,10 +188,6 @@ class GameController{
             $activePileImg.attr('id', drawnCard.id);
             $activePileImg.attr('class', 'card');
 
-            if (this.drawPile['dP0'].length == 0){
-                this.setDrawPileFace();
-            }
-
         } else {
             this.drawPile['dP0'] = this.activePile['aP0'];
             this.activePile['aP0'] = [];
@@ -195,9 +195,9 @@ class GameController{
                 card.parentPileClass = 'drawPile';
                 card.pileId = 'dP0';
             });
-            $drawPileImg.attr('src', backCardImgPath);
             $activePileImg.attr('src', emptyCardImgPath);
         }
+        this.setDrawPileFace();
     }
     checkValidRearrangeMove(cardToPlace, cardToReceive){
         if ((cardToPlace.rank == cardToReceive.rank - 1) && this.checkOppSuit(cardToPlace, cardToReceive)){
@@ -237,7 +237,6 @@ class GameController{
                 case 'rePile':
                     if (fromPileLen > 0){
                         $(this.cardToPlace.htmlId).remove();
-                        console.log("LINE 233 REMOVE");
                     } else {
                         if (i == poppedCards.length - 1){
                             const newlyEmptyPileImg = $(`#${fromParentPileId} img`);
@@ -247,7 +246,6 @@ class GameController{
                             newlyEmptyPileImg.css('transform', 'translateY(0%)');
                         } else {
                             $(this.cardToPlace.htmlId).remove();
-                            console.log("LINE 243 REMOVE");
                         }
                     }
                     break;
@@ -306,7 +304,7 @@ class GameController{
         }
 
         // FLIP TOPMOST CARD IF FACEDOWN FROM OLD PILE
-        if (fromPileLen > 0 && fromParentPileClass != 'activePile'){
+        if (fromPileLen > 0 && fromParentPileClass != 'activePile' && this[fromParentPileClass][fromParentPileId][fromPileLen-1].isFaceUp() == false){
             this[fromParentPileClass][fromParentPileId][fromPileLen-1].flipCard();
             gameScore += 10;
             $gameScoreBox.html(`Score: ${gameScore}`);
@@ -356,21 +354,30 @@ function handleClick(){
                     gameController.cardToPlace.highlightToggle();
                 }
             }
-        } 
+        } else if (this.id == gameController.cardToPlace.id){
+            gameController.resetCardToPlace();
+        }
         
         // SET THE CARD TO RECEIVE
         else {
+            if (parentPileClass == 'activePile'){
+                gameController.resetCardToPlace();
+            }
             // IF NEW PILE IS EMPTY
-            if (this.id == ""){
+            else if (this.id == ""){
                 switch (parentPileClass){
                     case 'rePile': // Only valid move is to place king on empty rearrange pile
                         if (gameController.cardToPlace.rank == 13){
                             gameController.moveCard(parentPileClass, parentPileId);     
-                        } 
+                        } else {
+                            gameController.resetCardToPlace();
+                        }
                         break;
                     case 'scorePile': // only valid move is to place ace on empty score pile
                         if (gameController.cardToPlace.rank == 1){
                             gameController.moveCard(parentPileClass, parentPileId);
+                        } else {
+                            gameController.resetCardToPlace();
                         }
                         break;
                     default: // no other valid moves
@@ -442,7 +449,7 @@ function startNewGame(){
         $newEmptyImg.appendTo($rePileHtmlElems);
         
         gameController.createDeck();
-        // gameController.shuffleDeck();
+        gameController.shuffleDeck();
         gameController.populateBoard();
         gameController.toggleClicks();
 
